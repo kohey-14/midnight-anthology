@@ -14,31 +14,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Zen+Maru+Gothic:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* --- 原稿用紙の設計図 --- */
-            --grid-size: 48px;  /* マス目の大きさ */
-            --font-size: 24px;  /* 文字の大きさ */
-            /* 文字をマスの真ん中に置くための隙間計算 */
-            --letter-gap: calc(var(--grid-size) - var(--font-size));
-            
+            --grid-size: 40px; 
+            --font-size: 22px; 
             --transition-speed: 0.5s;
         }
 
-        /* 家モード（クリーム色の紙・緑の罫線） */
         body[data-mode="home"] {
             --paper-color: #fcfaf2;
-            --grid-color: rgba(46, 139, 87, 0.25);
+            --grid-color: rgba(100, 140, 100, 0.2);
             --text-color: #2b2b2b;
             --accent-color: #5d6c7a;
-            --ui-bg: rgba(255, 255, 255, 0.6);
+            --btn-text: #444;
         }
 
-        /* 外モード（漆黒の紙・白い罫線） */
         body[data-mode="out"] {
-            --paper-color: #121212;
-            --grid-color: rgba(255, 255, 255, 0.12);
+            --paper-color: #1a1a1a;
+            --grid-color: rgba(255, 255, 255, 0.15);
             --text-color: #e0e0e0;
             --accent-color: #a8b8c0;
-            --ui-bg: rgba(0, 0, 0, 0.4);
+            --btn-text: #ccc;
         }
 
         body {
@@ -47,181 +41,198 @@
             color: var(--text-color);
             font-family: 'Hina Mincho', serif;
             height: 100vh; width: 100vw;
-            
-            /* 画面中央寄せの基本設定 */
             display: flex; justify-content: center; align-items: center;
-            
-            writing-mode: vertical-rl; /* 縦書き */
-            text-orientation: upright; /* 数字などを立たせる */
-            overflow: hidden;
-            overscroll-behavior: none;
+            writing-mode: vertical-rl; text-orientation: upright;
+            overflow: hidden; overscroll-behavior: none;
             transition: background-color var(--transition-speed), color var(--transition-speed);
-
-            /* 原稿用紙のマス目（背景グリッド） */
             background-image: 
                 linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
-            /* グリッドの開始位置を画面中央に合わせる */
             background-position: center center;
-            
             position: relative;
         }
 
-        /* アプリのコンテナ（枠線なし・透明） */
         .app-container {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
             align-items: center; justify-content: space-between;
-            padding: 30px;
-            box-sizing: border-box;
-            background: transparent;
-            pointer-events: none; /* 背景クリック透過 */
+            padding: 40px 20px; box-sizing: border-box;
+            background: transparent; pointer-events: none;
         }
-        .app-container > * { pointer-events: auto; } /* 中身はクリック可能に */
+        .app-container > * { pointer-events: auto; }
 
-        /* --- メイン表示エリア（ここが重要） --- */
-        .display-area {
-            flex-grow: 1;
-            width: 100%;
-            display: flex;
-            align-items: center;     /* 左右中央（縦書き時） */
-            justify-content: center; /* 上下中央（縦書き時） */
-            position: relative;
-        }
-
-        /* 文字のスタイル */
-        .task-text {
-            font-size: var(--font-size);
-            
-            /* 行の高さをマス目に完全に合わせる */
-            line-height: var(--grid-size); 
-            
-            /* 文字の間隔を調整してマス目に合わせる */
-            letter-spacing: var(--letter-gap); 
-            
-            /* マス目の中心に来るように微調整（フォントによるズレ補正） */
-            margin-right: calc(var(--letter-gap) / 2); 
-            margin-top: calc(var(--letter-gap) / 2);
-
-            color: var(--text-color);
-            font-feature-settings: "palt";
-            white-space: nowrap; /* 基本は改行しない */
-            
-            text-shadow: 0 0 1px rgba(0,0,0,0.05); /* 文字を少し滲ませる */
-            transition: color var(--transition-speed);
-        }
-        
-        /* 長文時の折り返し */
-        .task-text.long-text {
-            white-space: pre-wrap;
-            max-height: 70vh;
-            overflow-x: auto;
-        }
-
-        /* 時間の表示（小さな添字のように） */
-        .time-badge {
-            writing-mode: horizontal-tb; /* ここだけ横書き */
-            position: absolute;
-            bottom: 10%; /* 画面下の方 */
-            left: 10%;   /* 画面左の方 */
-            font-size: 11px;
-            color: var(--text-color);
-            opacity: 0.6;
-            font-family: 'Zen Maru Gothic', sans-serif;
-            transition: opacity 0.5s;
-        }
-
-        /* --- UIコントロール（左上） --- */
         .ui-controls {
             position: absolute; top: 20px; left: 20px;
-            display: flex; flex-direction: column; gap: 10px;
+            display: flex; flex-direction: column; gap: 15px;
             z-index: 100; writing-mode: horizontal-tb;
         }
 
         .icon-btn {
-            width: 40px; height: 40px; background: transparent; border: none;
+            width: 44px; height: 44px; background: transparent; border: none;
             display: flex; justify-content: center; align-items: center;
-            font-family: 'Hina Mincho', serif; font-size: 20px;
-            cursor: pointer; color: var(--text-color); opacity: 0.4;
+            font-family: 'Hina Mincho', serif; font-size: 24px;
+            cursor: pointer; color: var(--text-color); opacity: 0.5;
             transition: opacity 0.3s;
         }
         .icon-btn:hover { opacity: 1; }
         .icon-btn.active { opacity: 1; font-weight: bold; }
 
-        .location-switch {
-            display: flex; flex-direction: column; gap: 5px; margin-top: 10px;
-        }
+        .location-switch { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
         .loc-btn {
-            width: 40px; height: 40px; padding: 0;
-            font-family: 'Hina Mincho', serif; font-size: 16px;
+            width: 44px; height: 44px; padding: 0;
+            font-family: 'Hina Mincho', serif; font-size: 18px;
             border: none; background: transparent; cursor: pointer;
             color: var(--text-color); opacity: 0.3; transition: all 0.3s;
         }
-        .loc-btn.active {
-            opacity: 1; font-weight: bold;
-            border-left: 2px solid var(--accent-color); 
+        .loc-btn.active { opacity: 1; font-weight: bold; border-left: 3px solid var(--accent-color); }
+
+        .display-area {
+            flex-grow: 1; width: 100%; position: relative;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- ボタンエリア --- */
+        .text-wrapper {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; justify-content: center; align-items: center;
+            max-width: 80vh; max-height: 70vw;
+        }
+
+        .task-text {
+            font-size: var(--font-size);
+            line-height: var(--grid-size);
+            letter-spacing: 0.2em;
+            color: var(--text-color);
+            font-feature-settings: "palt";
+            white-space: pre-wrap; margin: 0;
+            text-shadow: 0 0 1px rgba(0,0,0,0.05);
+            transition: color var(--transition-speed);
+        }
+
+        .time-badge {
+            position: absolute; bottom: 20px; left: 20px;
+            writing-mode: horizontal-tb; font-size: 12px;
+            color: var(--text-color); border: 1px solid var(--grid-color);
+            padding: 4px 12px; border-radius: 20px; opacity: 0;
+            transition: opacity 0.5s; font-family: 'Zen Maru Gothic', sans-serif;
+            background: rgba(255,255,255,0.1);
+        }
+
         .button-area {
             display: flex; flex-direction: column; align-items: center; gap: 20px;
-            margin-left: 10px; z-index: 50;
+            margin-left: 20px; z-index: 50;
         }
 
         .btn {
             writing-mode: vertical-rl; text-orientation: upright;
-            background: transparent; color: var(--text-color);
-            border: none; padding: 15px 10px; font-size: 16px;
+            background: transparent; color: var(--btn-text);
+            border: none; padding: 20px 15px; font-size: 18px;
             letter-spacing: 0.3em; cursor: pointer; transition: all 0.3s;
-            font-family: 'Hina Mincho', serif; white-space: nowrap; opacity: 0.6;
+            font-family: 'Hina Mincho', serif; white-space: nowrap; opacity: 0.7;
         }
         .btn:hover { opacity: 1; transform: scale(1.05); }
-        .btn:active { opacity: 0.4; transform: scale(0.95); }
+        .btn:active { opacity: 0.5; transform: scale(0.95); }
         
-        .btn-night { color: var(--accent-color); opacity: 1; font-weight: bold; }
+        .btn-night { color: var(--accent-color); font-weight: bold; opacity: 1; }
 
         .hidden { display: none !important; }
 
-        /* タイマー */
         #timer-display {
-            font-size: 32px;
-            line-height: var(--grid-size);
+            font-size: 36px; line-height: var(--grid-size);
             color: var(--text-color); font-feature-settings: "tnum";
             font-family: 'Hina Mincho', serif;
         }
 
         #time-zone-msg, #timer-message {
-            writing-mode: vertical-rl;
-            font-size: 12px; color: var(--text-color); opacity: 0.5;
-            font-family: 'Zen Maru Gothic', sans-serif;
             position: absolute; top: 0; right: 0;
+            font-size: 12px; color: var(--text-color); opacity: 0.6;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            writing-mode: vertical-rl;
         }
 
-        /* --- 設定モーダル --- */
-        #settings-modal {
+        /* 設定・読書モーダル共通 */
+        .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 200;
             display: none; flex-direction: column; justify-content: center; align-items: center;
-            writing-mode: horizontal-tb; backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
         }
-        #settings-modal.active { display: flex; }
+        .modal-overlay.active { display: flex; }
 
-        .modal-content {
+        /* 設定モーダル */
+        #settings-modal .modal-content {
+            writing-mode: horizontal-tb; /* 設定は横書き */
             width: 85%; max-width: 400px; background: var(--paper-color);
-            color: var(--text-color); padding: 30px; border-radius: 4px; 
+            color: var(--text-color); padding: 30px; border-radius: 8px; 
             border: 1px solid var(--grid-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3);
             max-height: 70vh; display: flex; flex-direction: column;
-            transition: background-color var(--transition-speed);
         }
 
-        .modal-title { font-family:'Hina Mincho'; font-size:18px; margin-bottom:20px; text-align:center; }
+        /* 読書モーダル（縦書き・スクロール） */
+        #reader-modal { writing-mode: vertical-rl; }
+        #reader-modal .modal-content {
+            width: 90vw; height: 85vh; 
+            background: var(--paper-color);
+            color: var(--text-color);
+            padding: 40px; 
+            box-sizing: border-box;
+            border-radius: 4px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            /* マス目継承 */
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: var(--grid-size) var(--grid-size);
+            
+            overflow-x: scroll; /* 横スクロール */
+            overflow-y: hidden;
+            display: block; /* フレックス解除 */
+        }
+
+        /* 読書コンテンツ */
+        .reader-entry {
+            height: 100%;
+            border-left: 1px double var(--accent-color); /* 区切り線 */
+            padding-left: calc(var(--grid-size) * 1.5);
+            margin-left: calc(var(--grid-size) * 1.5);
+            display: inline-block;
+            vertical-align: top;
+        }
+        .reader-entry:first-child { border-left: none; }
+        
+        .reader-action {
+            font-size: 14px; opacity: 0.6; margin-bottom: var(--grid-size);
+            font-family: 'Zen Maru Gothic', sans-serif;
+        }
+        .reader-text {
+            font-size: var(--font-size);
+            line-height: var(--grid-size);
+            letter-spacing: 0.2em;
+            white-space: pre-wrap;
+        }
+        .reader-date {
+            font-size: 12px; margin-top: auto; text-align: right; opacity: 0.4;
+            font-family: 'Zen Maru Gothic', sans-serif; margin-left: 10px;
+        }
+
+        /* 閉じるボタン（読書用） */
+        .reader-close-btn {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            writing-mode: horizontal-tb;
+            background: rgba(255,255,255,0.8); padding: 10px 20px;
+            border-radius: 30px; border: 1px solid #ccc;
+            cursor: pointer; color: #333; z-index: 300;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* 設定UI */
+        .modal-title { font-family:'Hina Mincho'; font-size:20px; margin-bottom:20px; text-align:center; }
         .tabs { display: flex; border-bottom: 1px solid var(--grid-color); margin-bottom: 20px; }
-        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 12px; opacity: 0.5; }
+        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 13px; opacity: 0.5; }
         .tab.active { opacity: 1; border-bottom: 2px solid var(--accent-color); font-weight: bold; }
         .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { padding: 10px; border: 1px solid var(--grid-color); background:transparent; color:var(--text-color); border-radius: 2px; font-size:14px; flex:1; font-family:'Hina Mincho'; }
-        #new-task-time { width: 50px; flex:none; text-align:center; }
+        input { padding: 10px; border: 1px solid var(--grid-color); background:transparent; color:var(--text-color); border-radius: 4px; font-size:14px; flex:1; font-family:'Hina Mincho'; }
+        #new-task-time { width: 60px; flex:none; text-align:center; }
         .add-btn { background: var(--accent-color); color: #fff; border: none; padding: 0 20px; border-radius: 2px; cursor: pointer; font-size:13px; }
         .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; }
         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--grid-color); font-size:15px; font-family:'Hina Mincho'; }
@@ -233,7 +244,7 @@
         #print-area { display: none; }
         @media print {
             body { background: #fff !important; color: #000 !important; background-image: none !important; }
-            .app-container, .ui-controls, #settings-modal, .debug-btn { display: none; }
+            .app-container, .ui-controls, .modal-overlay, .debug-btn { display: none; }
             #print-area { display: block; width: 100%; height: 100%; padding: 30px; }
             .book-page { border-right: 1px solid #ddd; padding-right: 20px; height: 100%; }
             .book-title { font-size: 28px; font-family: 'Hina Mincho', serif; margin-bottom: 20px; text-orientation: upright; }
@@ -259,17 +270,14 @@
 
     <div class="app-container">
         <div id="day-mode" style="display:flex; flex-direction:column; align-items:center; height:100%; width:100%;">
-            
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
-                
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
-                    
-                    <div id="task-text" class="task-text">ページをめくる</div>
-                    
+                    <div class="text-wrapper">
+                        <div id="task-text" class="task-text">ページをめくる</div>
+                    </div>
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
-                
                 <div class="button-area">
                     <button class="btn" id="btn-spin" onclick="startRoulette()">探す</button>
                     <button class="btn hidden" id="btn-stop-roulette" onclick="stopRoulette()">此処にする</button>
@@ -282,7 +290,6 @@
                     <div id="timer-message">静かな時間</div>
                     <div id="timer-display">00:00</div>
                 </div>
-                
                 <div class="button-area">
                     <button class="btn" onclick="stopFocus()">栞をはさむ</button>
                 </div>
@@ -295,18 +302,21 @@
 
         <div id="night-mode" class="hidden" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center;">
             <div class="display-area">
-                <div class="task-text" style="font-size:20px;">
-                    今日一日、<br>あなたは確かに生きていました。<br>
-                    <span style="font-size:14px; opacity:0.6;">その証を、一冊の本に。</span>
+                <div class="text-wrapper">
+                    <div class="task-text" style="font-size:20px;">
+                        今日一日、<br>あなたは確かに生きていました。<br>
+                        <span style="font-size:14px; opacity:0.6;">その証を、一冊の本に。</span>
+                    </div>
                 </div>
             </div>
             <div class="button-area">
+                <button class="btn btn-night" onclick="openReader()">立ち読み</button>
                 <button class="btn btn-night" onclick="printBook()">製本する</button>
             </div>
         </div>
     </div>
 
-    <div id="settings-modal">
+    <div id="settings-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-title">行動リストの編集 (<span id="setting-mode-label">家</span>)</div>
             <div class="tabs">
@@ -326,6 +336,12 @@
                 <button onclick="resetDefaultTasks()" style="background:none; border:none; color:inherit; opacity:0.5; text-decoration:underline; cursor:pointer; font-size:11px; font-family:'Hina Mincho';">初期リストに戻す</button>
             </div>
         </div>
+    </div>
+
+    <div id="reader-modal" class="modal-overlay">
+        <div class="modal-content" id="reader-content">
+            </div>
+        <button class="reader-close-btn" onclick="closeReader()">閉じる</button>
     </div>
 
     <div id="print-area"></div>
@@ -465,6 +481,38 @@
 
         function closeSettings() {
             document.getElementById('settings-modal').classList.remove('active');
+        }
+
+        // --- 読書モード ---
+        function openReader() {
+            if(collectedData.length === 0) {
+                alert("まだ白紙です。");
+                return;
+            }
+            const container = document.getElementById('reader-content');
+            let html = '';
+            
+            // 最新が右に来るように逆順にするか、時系列にするか。ここでは時系列
+            collectedData.forEach(item => {
+                const h = new Date(item.date).getHours();
+                const m = new Date(item.date).getMinutes();
+                const timeStr = `${toKanji(h)}時${toKanji(m)}分`;
+                
+                html += `
+                    <div class="reader-entry">
+                        <div class="reader-action">「${item.action}」ノ時</div>
+                        <div class="reader-text">${item.content.text}</div>
+                        <div class="reader-date">（${timeStr}）</div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            document.getElementById('reader-modal').classList.add('active');
+        }
+
+        function closeReader() {
+            document.getElementById('reader-modal').classList.remove('active');
         }
 
         function switchTab(zone) {
