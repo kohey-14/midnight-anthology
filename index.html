@@ -14,13 +14,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Zen+Maru+Gothic:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* グリッド設定 */
             --grid-size: 40px; 
             --font-size: 22px; 
             --transition-speed: 0.5s;
         }
 
-        /* 家モード */
         body[data-mode="home"] {
             --paper-color: #fcfaf2;
             --grid-color: rgba(100, 140, 100, 0.2);
@@ -29,7 +27,6 @@
             --btn-text: #444;
         }
 
-        /* 外モード */
         body[data-mode="out"] {
             --paper-color: #1a1a1a;
             --grid-color: rgba(255, 255, 255, 0.15);
@@ -44,17 +41,13 @@
             color: var(--text-color);
             font-family: 'Hina Mincho', serif;
             height: 100vh; width: 100vw;
-            
-            /* 画面全体を中央寄せのコンテナにする */
             display: flex; justify-content: center; align-items: center;
-            
             writing-mode: vertical-rl;
             text-orientation: upright;
             overflow: hidden;
             overscroll-behavior: none;
             transition: background-color var(--transition-speed), color var(--transition-speed);
 
-            /* マス目 */
             background-image: 
                 linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
@@ -63,7 +56,6 @@
             position: relative;
         }
 
-        /* アプリ全体 */
         .app-container {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
@@ -75,43 +67,38 @@
         }
         .app-container > * { pointer-events: auto; }
 
-        /* --- メイン表示エリア --- */
         .display-area {
             flex-grow: 1; width: 100%;
-            /* Flexboxで上下左右中央寄せ */
             display: flex; 
-            justify-content: center; /* 縦方向の中央 */
-            align-items: center;     /* 横方向の中央 */
+            justify-content: center; 
+            align-items: center;     
             position: relative;
+            /* 修正: display-area自体は横書きルールで配置制御 */
+            writing-mode: horizontal-tb;
         }
 
-        /* テキスト本体 */
         .task-text {
-            font-size: var(--font-size);
-            line-height: var(--grid-size); /* マス目の高さに合わせる */
-            letter-spacing: 0.3em;         /* 文字間隔を広めに */
+            writing-mode: vertical-rl; /* 文字は縦書き */
+            text-orientation: upright;
             
+            font-size: var(--font-size);
+            line-height: var(--grid-size);
+            letter-spacing: 0.3em;
             color: var(--text-color);
             font-feature-settings: "palt";
-            white-space: nowrap; /* 勝手な折り返しを禁止 */
+            white-space: nowrap; 
             
-            /* 物理的な高さ制限を画面の高さに合わせる（ここが修正点） */
             max-height: 80vh; 
-            
+            margin: 0 auto;
             text-shadow: 0 0 1px rgba(0,0,0,0.05);
             transition: color var(--transition-speed);
-            
-            /* Flexアイテムとしての配置 */
-            margin: 0 auto;
         }
         
-        /* 長文の場合のみ折り返し許可 */
         .task-text.long-text {
             white-space: pre-wrap;
-            margin-left: -20px; /* 少し左にずらしてバランスを取る */
+            margin-left: -20px; 
         }
 
-        /* 時間バッジ（左下に固定） */
         .time-badge {
             position: absolute;
             bottom: 20px; left: 20px;
@@ -122,18 +109,15 @@
             transition: opacity 0.5s;
         }
 
-        /* 小さなメッセージ（右上に固定） */
         #time-zone-msg, #timer-message {
             position: absolute;
             top: 0; right: 0;
             writing-mode: vertical-rl;
             font-size: 12px; color: var(--text-color); opacity: 0.5;
             font-family: 'Zen Maru Gothic', sans-serif;
-            /* 長すぎて改行されないように */
             white-space: nowrap;
         }
 
-        /* UIコントロール（左上） */
         .ui-controls {
             position: absolute; top: 20px; left: 20px;
             display: flex; flex-direction: column; gap: 10px;
@@ -159,7 +143,6 @@
         }
         .loc-btn.active { opacity: 1; font-weight: bold; border-left: 2px solid var(--accent-color); }
 
-        /* ボタンエリア */
         .button-area {
             display: flex; flex-direction: column; align-items: center; gap: 20px;
             margin-left: 10px; z-index: 50;
@@ -182,9 +165,9 @@
             font-size: 32px; line-height: var(--grid-size);
             color: var(--text-color); font-feature-settings: "tnum";
             font-family: 'Hina Mincho', serif;
+            writing-mode: vertical-rl; text-orientation: upright;
         }
 
-        /* モーダル */
         #settings-modal, #reader-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 200;
@@ -198,7 +181,7 @@
             width: 85%; max-width: 400px; background: var(--paper-color);
             color: var(--text-color); padding: 30px; border-radius: 4px; 
             border: 1px solid var(--grid-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            max-height: 70vh; display: flex; flex-direction: column;
+            max-height: 80vh; display: flex; flex-direction: column;
             transition: background-color var(--transition-speed);
         }
 
@@ -234,10 +217,12 @@
         input { padding: 10px; border: 1px solid var(--grid-color); background:transparent; color:var(--text-color); border-radius: 2px; font-size:14px; flex:1; font-family:'Hina Mincho'; }
         #new-task-time { width: 60px; flex:none; text-align:center; }
         .add-btn { background: var(--accent-color); color: #fff; border: none; padding: 0 20px; border-radius: 2px; cursor: pointer; font-size:13px; }
-        .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; }
+        .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; min-height: 100px;}
         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--grid-color); font-size:15px; font-family:'Hina Mincho'; }
         .close-modal-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--grid-color); color: var(--text-color); cursor: pointer; font-family:'Hina Mincho'; border-radius:2px; }
         .delete-btn { opacity: 0.5; cursor: pointer; padding: 0 10px; }
+        .menu-btn { width: 100%; padding: 12px; text-align:left; background: transparent; border: none; color: var(--text-color); cursor: pointer; font-family:'Hina Mincho'; font-size:14px; display:flex; justify-content:space-between; opacity:0.8; }
+        .divider { border-bottom: 1px solid var(--grid-color); margin: 20px 0; width: 100%; opacity: 0.5; }
 
         .debug-btn { position: fixed; bottom: 10px; right: 10px; writing-mode: horizontal-tb; font-size: 10px; color: var(--grid-color); border:none; background:none; cursor: pointer; }
 
@@ -261,7 +246,7 @@
     <div class="ui-controls">
         <button class="icon-btn" onclick="openSettings()" title="設定">設</button>
         <button class="icon-btn" id="sound-toggle" onclick="toggleSound()" title="音のON/OFF">音</button>
-        
+        <button class="icon-btn" onclick="openReader()" title="本棚">棚</button>
         <div class="location-switch">
             <button class="loc-btn active" id="loc-home" onclick="switchLocation('home')">家</button>
             <button class="loc-btn" id="loc-out" onclick="switchLocation('out')">外</button>
@@ -274,7 +259,9 @@
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
+                    
                     <div id="task-text" class="task-text">ページをめくる</div>
+                    
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
                 <div class="button-area">
@@ -315,7 +302,7 @@
 
     <div id="settings-modal">
         <div class="settings-content">
-            <div class="modal-title">行動リストの編集 (<span id="setting-mode-label">家</span>)</div>
+            <div class="modal-title">行動リストの編集</div>
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('morning')">朝</div>
                 <div class="tab" onclick="switchTab('day')">昼</div>
@@ -328,10 +315,20 @@
                 <button class="add-btn" onclick="addTask()">追加</button>
             </div>
             <div class="task-list" id="task-list-container"></div>
-            <button class="close-modal-btn" onclick="closeSettings()">閉じる</button>
-            <div style="margin-top:10px; text-align:center;">
-                <button onclick="resetDefaultTasks()" style="background:none; border:none; color:inherit; opacity:0.5; text-decoration:underline; cursor:pointer; font-size:11px; font-family:'Hina Mincho';">初期リストに戻す</button>
+            
+            <div class="divider"></div>
+            <div style="margin-bottom:20px;">
+                <button class="menu-btn" onclick="forceNightMode(); closeSettings();">
+                    <span>夜の部屋へ（製本・立ち読み）</span><span>☾</span>
+                </button>
+                <button class="menu-btn" onclick="resetStory()">
+                    <span>物語をリセットする</span><span>↺</span>
+                </button>
+                <button class="menu-btn" onclick="resetDefaultTasks()">
+                    <span>リストを初期状態に戻す</span><span>⚠</span>
+                </button>
             </div>
+            <button class="close-modal-btn" onclick="closeSettings()">閉じる</button>
         </div>
     </div>
 
@@ -341,8 +338,7 @@
     </div>
 
     <div id="print-area"></div>
-    <button class="debug-btn" onclick="forceNightMode()">[DEBUG]</button>
-
+    
     <audio id="bgm" loop></audio>
 
     <script>
@@ -563,15 +559,25 @@
         }
 
         function resetDefaultTasks() {
-            if(confirm("現在のモードのリストを初期状態に戻しますか？")) {
+            if(confirm("リストを初期状態に戻しますか？")) {
                 tasksData = JSON.parse(JSON.stringify(defaultTasksData));
                 saveTasks();
                 renderTaskList();
             }
         }
+        
+        function resetStory() {
+            if(confirm("今日の物語をリセットしますか？\n（これまでの記録は消えます）")) {
+                collectedData = [];
+                saveData();
+                updateCount();
+                alert("新しい白紙を用意しました。");
+                closeSettings();
+            }
+        }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v41');
+            const stored = localStorage.getItem('location_tasks_v44');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -580,7 +586,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v41', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v44', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -602,10 +608,7 @@
 
             rouletteInterval = setInterval(() => {
                 const r = Math.floor(Math.random() * list.length);
-                const txt = list[r].text;
-                textBox.innerText = txt;
-                if(txt.length > 8) textBox.classList.add('long-text');
-                else textBox.classList.remove('long-text');
+                textBox.innerText = list[r].text;
             }, 70);
         }
 
@@ -726,11 +729,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v41', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v44', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v41');
+            const data = localStorage.getItem('anthology_data_v44');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
@@ -760,8 +763,8 @@
                 return;
             }
             const printArea = document.getElementById('print-area');
-            const now = new Date();
-            const dateStr = `${toKanji(now.getFullYear())}年 ${toKanji(now.getMonth()+1)}月 ${toKanji(now.getDate())}日`;
+            const firstDate = collectedData[0].date;
+            const dateStr = `${toKanji(firstDate.getFullYear())}年 ${toKanji(firstDate.getMonth()+1)}月 ${toKanji(firstDate.getDate())}日`;
             let html = `<div class="book-title-page"><div class="book-title">夜明けのアンソロジー</div><div class="book-date">${dateStr}</div></div>`;
             
             collectedData.forEach(item => {
