@@ -14,11 +14,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Zen+Maru+Gothic:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
+            /* グリッド設定 */
             --grid-size: 40px; 
             --font-size: 22px; 
             --transition-speed: 0.5s;
         }
 
+        /* 家モード */
         body[data-mode="home"] {
             --paper-color: #fcfaf2;
             --grid-color: rgba(100, 140, 100, 0.2);
@@ -27,6 +29,7 @@
             --btn-text: #444;
         }
 
+        /* 外モード */
         body[data-mode="out"] {
             --paper-color: #1a1a1a;
             --grid-color: rgba(255, 255, 255, 0.15);
@@ -41,13 +44,17 @@
             color: var(--text-color);
             font-family: 'Hina Mincho', serif;
             height: 100vh; width: 100vw;
+            
+            /* 画面全体を中央寄せのコンテナにする */
             display: flex; justify-content: center; align-items: center;
+            
             writing-mode: vertical-rl;
             text-orientation: upright;
             overflow: hidden;
             overscroll-behavior: none;
             transition: background-color var(--transition-speed), color var(--transition-speed);
 
+            /* マス目 */
             background-image: 
                 linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
                 linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
@@ -56,6 +63,7 @@
             position: relative;
         }
 
+        /* アプリ全体 */
         .app-container {
             width: 100%; height: 100%;
             display: flex; flex-direction: column;
@@ -67,37 +75,65 @@
         }
         .app-container > * { pointer-events: auto; }
 
+        /* --- メイン表示エリア --- */
         .display-area {
             flex-grow: 1; width: 100%;
-            display: flex; align-items: center; justify-content: center;
+            /* Flexboxで上下左右中央寄せ */
+            display: flex; 
+            justify-content: center; /* 縦方向の中央 */
+            align-items: center;     /* 横方向の中央 */
             position: relative;
         }
 
-        .text-wrapper {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; justify-content: center; align-items: center;
-            max-width: 80vh; max-height: 70vw;
-        }
-
+        /* テキスト本体 */
         .task-text {
             font-size: var(--font-size);
-            line-height: var(--grid-size);
-            letter-spacing: 0.2em;
+            line-height: var(--grid-size); /* マス目の高さに合わせる */
+            letter-spacing: 0.3em;         /* 文字間隔を広めに */
+            
             color: var(--text-color);
             font-feature-settings: "palt";
-            white-space: pre-wrap; margin: 0;
+            white-space: nowrap; /* 勝手な折り返しを禁止 */
+            
+            /* 物理的な高さ制限を画面の高さに合わせる（ここが修正点） */
+            max-height: 80vh; 
+            
             text-shadow: 0 0 1px rgba(0,0,0,0.05);
             transition: color var(--transition-speed);
+            
+            /* Flexアイテムとしての配置 */
+            margin: 0 auto;
+        }
+        
+        /* 長文の場合のみ折り返し許可 */
+        .task-text.long-text {
+            white-space: pre-wrap;
+            margin-left: -20px; /* 少し左にずらしてバランスを取る */
         }
 
+        /* 時間バッジ（左下に固定） */
         .time-badge {
-            position: absolute; bottom: 10%; left: 10%;
-            writing-mode: horizontal-tb; font-size: 11px;
+            position: absolute;
+            bottom: 20px; left: 20px;
+            writing-mode: horizontal-tb;
+            font-size: 11px;
             color: var(--text-color); opacity: 0.6;
             font-family: 'Zen Maru Gothic', sans-serif;
             transition: opacity 0.5s;
         }
 
+        /* 小さなメッセージ（右上に固定） */
+        #time-zone-msg, #timer-message {
+            position: absolute;
+            top: 0; right: 0;
+            writing-mode: vertical-rl;
+            font-size: 12px; color: var(--text-color); opacity: 0.5;
+            font-family: 'Zen Maru Gothic', sans-serif;
+            /* 長すぎて改行されないように */
+            white-space: nowrap;
+        }
+
+        /* UIコントロール（左上） */
         .ui-controls {
             position: absolute; top: 20px; left: 20px;
             display: flex; flex-direction: column; gap: 10px;
@@ -123,6 +159,7 @@
         }
         .loc-btn.active { opacity: 1; font-weight: bold; border-left: 2px solid var(--accent-color); }
 
+        /* ボタンエリア */
         .button-area {
             display: flex; flex-direction: column; align-items: center; gap: 20px;
             margin-left: 10px; z-index: 50;
@@ -147,12 +184,6 @@
             font-family: 'Hina Mincho', serif;
         }
 
-        #time-zone-msg, #timer-message {
-            writing-mode: vertical-rl; position: absolute; top: 0; right: 0;
-            font-size: 12px; color: var(--text-color); opacity: 0.5;
-            font-family: 'Zen Maru Gothic', sans-serif;
-        }
-
         /* モーダル */
         #settings-modal, #reader-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -171,22 +202,18 @@
             transition: background-color var(--transition-speed);
         }
 
-        /* 読書モーダル */
         #reader-modal { writing-mode: vertical-rl; }
         .reader-content {
             width: 90vw; height: 85vh; background: var(--paper-color);
             color: var(--text-color); padding: 40px; box-sizing: border-box;
             border-radius: 4px; box-shadow: 0 10px 50px rgba(0,0,0,0.3);
-            background-image: 
-                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
-                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             overflow-x: scroll; overflow-y: hidden; display: block;
         }
         .reader-entry {
             height: 100%; border-left: 1px double var(--accent-color);
-            padding-left: calc(var(--grid-size) * 1.5);
-            margin-left: calc(var(--grid-size) * 1.5);
+            padding-left: calc(var(--grid-size) * 1.5); margin-left: calc(var(--grid-size) * 1.5);
             display: inline-block; vertical-align: top;
         }
         .reader-entry:first-child { border-left: none; }
@@ -205,7 +232,7 @@
         .tab.active { opacity: 1; border-bottom: 2px solid var(--accent-color); font-weight: bold; }
         .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
         input { padding: 10px; border: 1px solid var(--grid-color); background:transparent; color:var(--text-color); border-radius: 2px; font-size:14px; flex:1; font-family:'Hina Mincho'; }
-        #new-task-time { width: 50px; flex:none; text-align:center; }
+        #new-task-time { width: 60px; flex:none; text-align:center; }
         .add-btn { background: var(--accent-color); color: #fff; border: none; padding: 0 20px; border-radius: 2px; cursor: pointer; font-size:13px; }
         .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; }
         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--grid-color); font-size:15px; font-family:'Hina Mincho'; }
@@ -247,9 +274,7 @@
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
-                    <div class="text-wrapper">
-                        <div id="task-text" class="task-text">ページをめくる</div>
-                    </div>
+                    <div id="task-text" class="task-text">ページをめくる</div>
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
                 <div class="button-area">
@@ -262,9 +287,7 @@
             <div id="phase-timer" class="hidden" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="timer-message">静かな時間</div>
-                    <div class="text-wrapper">
-                        <div id="timer-display">00:00</div>
-                    </div>
+                    <div id="timer-display">00:00</div>
                 </div>
                 <div class="button-area">
                     <button class="btn" onclick="stopFocus()">栞をはさむ</button>
@@ -278,11 +301,9 @@
 
         <div id="night-mode" class="hidden" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center;">
             <div class="display-area">
-                <div class="text-wrapper">
-                    <div class="task-text" style="font-size:20px;">
-                        今日一日、<br>あなたは確かに生きていました。<br>
-                        <span style="font-size:14px; opacity:0.6;">その証を、一冊の本に。</span>
-                    </div>
+                <div class="task-text" style="font-size:20px;">
+                    今日一日、<br>あなたは確かに生きていました。<br>
+                    <span style="font-size:14px; opacity:0.6;">その証を、一冊の本に。</span>
                 </div>
             </div>
             <div class="button-area">
@@ -367,7 +388,7 @@
         let totalSeconds = 180;
         let currentTaskObj = null;
         let isSoundOn = false;
-        let endTime; // 終了予定時刻
+        let endTime; 
         
         const bgm = document.getElementById('bgm');
         bgm.src = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"; 
@@ -550,7 +571,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v40');
+            const stored = localStorage.getItem('location_tasks_v41');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -559,7 +580,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v40', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v41', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -581,7 +602,10 @@
 
             rouletteInterval = setInterval(() => {
                 const r = Math.floor(Math.random() * list.length);
-                textBox.innerText = list[r].text;
+                const txt = list[r].text;
+                textBox.innerText = txt;
+                if(txt.length > 8) textBox.classList.add('long-text');
+                else textBox.classList.remove('long-text');
             }, 70);
         }
 
@@ -616,13 +640,9 @@
             
             playBGM();
             
-            // ★スリープ対策ロジック★
-            // 1. 今の時間を取得
             const now = Date.now();
-            // 2. 終了時刻を計算 (現在時刻 + 分 * 60 * 1000ミリ秒)
             endTime = now + (currentTaskObj.time * 60 * 1000);
             
-            // 画面表示用の秒数も初期化
             totalSeconds = currentTaskObj.time * 60;
             if(totalSeconds <= 0) {
                  completeTask();
@@ -631,12 +651,8 @@
             
             updateTimerDisplay();
             
-            // タイマー開始（1秒ごとではなく、少し細かくチェック）
             timerInterval = setInterval(() => {
-                // 残り時間を現在時刻から再計算
                 const timeLeft = endTime - Date.now();
-                
-                // 表示用の秒数に変換
                 totalSeconds = Math.ceil(timeLeft / 1000);
                 
                 if(totalSeconds <= 0) {
@@ -644,11 +660,10 @@
                 } else {
                     updateTimerDisplay();
                 }
-            }, 200); // 0.2秒ごとにチェック
+            }, 200);
         }
 
         function updateTimerDisplay() {
-            // マイナス表示防止
             const t = Math.max(0, totalSeconds);
             const m = Math.floor(t / 60);
             const s = t % 60;
@@ -711,11 +726,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v40', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v41', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v40');
+            const data = localStorage.getItem('anthology_data_v41');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
