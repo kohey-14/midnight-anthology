@@ -20,19 +20,24 @@
             color: var(--text-color);
             font-family: 'Hina Mincho', serif;
             height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
-            writing-mode: vertical-rl;
+            writing-mode: vertical-rl; /* 縦書き */
             overflow: hidden;
             background-image: radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.8) 0%, rgba(224, 236, 248, 0.4) 90%);
         }
 
         .app-container {
-            width: 85vh;
-            height: 75vw;
-            max-height: 600px;
-            min-width: 320px;
+            /* PC用初期値 */
+            width: 600px;
+            height: 80vh;
+            
+            /* スマホ・レスポンシブ対応 */
+            max-width: 90vw; /* 画面幅の90%以上にはならない */
+            max-height: 90vh;
+            
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -40,9 +45,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 60px;
+            padding: 30px 20px; /* パディング少し調整 */
             position: relative;
             border: 1px solid rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
         }
 
         h1 {
@@ -51,8 +57,9 @@
             letter-spacing: 0.4em;
             color: var(--text-color);
             margin-left: 0;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             font-family: 'Zen Maru Gothic', sans-serif;
+            flex-shrink: 0;
         }
 
         .display-area {
@@ -63,22 +70,24 @@
             justify-content: center;
             text-align: center;
             width: 100%;
+            overflow-x: auto; /* コンテンツが多い場合はスクロール */
         }
 
         .task-text {
-            font-size: 26px;
+            font-size: 24px; /* スマホで見やすいサイズ */
             line-height: 2;
-            padding: 20px;
+            padding: 10px;
             border-top: 1px solid rgba(0, 0, 0, 0.2);
             border-bottom: 1px solid rgba(0, 0, 0, 0.2);
             font-feature-settings: "palt";
             color: #000;
+            max-height: 60%; /* 長文対策 */
         }
 
         .message-small {
-            font-size: 13px;
+            font-size: 12px;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-family: 'Zen Maru Gothic', sans-serif;
         }
 
@@ -88,14 +97,15 @@
             background: #fff;
             color: #000;
             border: 1px solid #000;
-            padding: 25px 16px;
+            padding: 20px 14px;
             font-size: 14px;
             letter-spacing: 0.2em;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 50px;
-            margin-left: 30px;
+            margin-left: 20px;
             font-family: 'Zen Maru Gothic', sans-serif;
+            flex-shrink: 0;
         }
         .btn:hover { background: #000; color: #fff; }
         .btn-night { border-color: #6a5acd; color: #6a5acd; }
@@ -104,7 +114,7 @@
         .hidden { display: none !important; }
 
         #timer-display {
-            font-size: 36px;
+            font-size: 32px;
             letter-spacing: 0.2em;
             color: #000;
             text-orientation: upright;
@@ -114,19 +124,20 @@
         /* 場所切り替えスイッチ */
         .location-switch {
             position: absolute;
-            top: 20px;
-            left: 60px;
+            top: 15px;
+            left: 55px;
             writing-mode: horizontal-tb;
             display: flex;
             border: 1px solid #ccc;
             border-radius: 20px;
             overflow: hidden;
             background: #fff;
+            z-index: 10;
         }
         .loc-btn {
-            padding: 5px 15px;
+            padding: 6px 12px;
             font-family: 'Zen Maru Gothic';
-            font-size: 12px;
+            font-size: 11px;
             cursor: pointer;
             background: transparent;
             border: none;
@@ -137,17 +148,18 @@
         /* 設定ボタン */
         .settings-btn {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 20px;
+            top: 15px;
+            left: 15px;
+            font-size: 22px;
             cursor: pointer;
-            opacity: 0.3;
+            opacity: 0.4;
             transition: opacity 0.3s;
             writing-mode: horizontal-tb;
+            z-index: 10;
         }
         .settings-btn:hover { opacity: 1; }
 
-        /* 設定モーダル */
+        /* --- 設定モーダル (横書き) --- */
         #settings-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255,255,255,0.98); z-index: 100;
@@ -157,54 +169,52 @@
         #settings-modal.active { display: flex; }
 
         .modal-content {
-            width: 90%; max-width: 600px; background: #fff; padding: 30px;
+            width: 90%; max-width: 500px; background: #fff; padding: 20px;
             border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: 1px solid #eee;
             max-height: 90vh; display: flex; flex-direction: column;
         }
 
-        .modal-title { font-family:'Zen Maru Gothic'; font-size:18px; margin-bottom:10px; text-align:center; }
+        .modal-title { font-family:'Zen Maru Gothic'; font-size:16px; margin-bottom:10px; text-align:center; }
         
-        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+        .tabs { display: flex; border-bottom: 1px solid #ddd; margin-bottom: 15px; }
         .tab {
-            flex: 1; padding: 10px; text-align: center; cursor: pointer;
-            font-family:'Zen Maru Gothic'; font-size: 14px; color: #999;
+            flex: 1; padding: 8px; text-align: center; cursor: pointer;
+            font-family:'Zen Maru Gothic'; font-size: 12px; color: #999;
             border-bottom: 2px solid transparent;
         }
         .tab.active { color: #333; border-bottom: 2px solid #5d6c7a; font-weight: bold; }
 
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
-        #new-task-input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
-        #new-task-time { width: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
-        .add-btn { padding: 8px 15px; background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 15px; align-items: center; }
+        #new-task-input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size:14px;}
+        #new-task-time { width: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size:14px;}
+        .add-btn { padding: 8px 15px; background: #333; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size:12px;}
 
-        .task-list { flex-grow: 1; overflow-y: auto; border-top: 1px solid #eee; min-height: 200px; }
+        .task-list { flex-grow: 1; overflow-y: auto; border-top: 1px solid #eee; min-height: 150px; }
         .task-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; border-bottom: 1px solid #f5f5f5; font-family:'Hina Mincho';
+            padding: 8px; border-bottom: 1px solid #f5f5f5; font-family:'Hina Mincho'; font-size:14px;
         }
-        .task-info { display: flex; align-items: center; gap: 10px; }
         .task-time-badge {
-            font-size: 10px; background: #eee; padding: 2px 6px; border-radius: 4px;
-            color: #666; font-family: sans-serif;
+            font-size: 10px; background: #eee; padding: 2px 6px; border-radius: 4px; color: #666; margin-left: 8px;
         }
-        .delete-btn { color: #ccc; cursor: pointer; font-size: 18px; }
-        .delete-btn:hover { color: #d9534f; }
-        .close-modal-btn { margin-top: 20px; width: 100%; padding: 10px; background: transparent; border: 1px solid #ccc; color: #666; border-radius: 5px; cursor: pointer; }
+        .delete-btn { color: #ccc; cursor: pointer; margin-left:10px; font-size: 16px; }
+        .close-modal-btn { margin-top: 15px; width: 100%; padding: 12px; background: #f5f5f5; border: none; color: #666; border-radius: 5px; cursor: pointer; }
 
-        .debug-btn { position: fixed; bottom: 15px; right: 15px; writing-mode: horizontal-tb; font-size: 11px; color: #ccc; border:none; background:none; cursor: pointer; }
+        .debug-btn { position: fixed; bottom: 10px; right: 10px; writing-mode: horizontal-tb; font-size: 10px; color: #ccc; border:none; background:none; cursor: pointer; }
 
+        /* 印刷用 */
         #print-area { display: none; }
         @media print {
             body { background: #fff; display: block; writing-mode: vertical-rl; }
             .app-container, .debug-btn, #settings-modal { display: none; }
-            #print-area { display: block; width: 100%; height: 100%; padding: 50px; }
-            .book-title-page { height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #eee; margin-left: 50px; }
-            .book-title { font-size: 32px; font-family: 'Hina Mincho', serif; margin-bottom: 20px; }
-            .book-date { font-size: 14px; font-family: 'Zen Maru Gothic', sans-serif; }
-            .chapter { height: 90vh; margin-right: 60px; border-left: 1px solid #f0f0f0; padding-left: 30px; display: flex; flex-direction: column; }
-            .chapter-header { font-size: 12px; color: #666; margin-bottom: 40px; font-family: 'Zen Maru Gothic', sans-serif; }
-            .chapter-text { font-size: 15px; line-height: 2.4; text-align: justify; font-family: 'Hina Mincho', serif; color: #000; }
-            .chapter-footer { margin-top: auto; font-size: 11px; color: #666; text-align: right; }
+            #print-area { display: block; width: 100%; height: 100%; padding: 30px; }
+            .book-title-page { height: 90vh; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid #eee; margin-left: 20px; }
+            .book-title { font-size: 28px; font-family: 'Hina Mincho', serif; margin-bottom: 20px; }
+            .book-date { font-size: 12px; font-family: 'Zen Maru Gothic', sans-serif; }
+            .chapter { height: 90vh; margin-right: 40px; border-left: 1px solid #f0f0f0; padding-left: 20px; display: flex; flex-direction: column; }
+            .chapter-header { font-size: 10px; color: #666; margin-bottom: 30px; font-family: 'Zen Maru Gothic', sans-serif; }
+            .chapter-text { font-size: 14px; line-height: 2.2; text-align: justify; font-family: 'Hina Mincho', serif; color: #000; }
+            .chapter-footer { margin-top: auto; font-size: 10px; color: #666; text-align: right; }
         }
     </style>
 </head>
@@ -272,7 +282,7 @@
             
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="行動を入力">
-                <input type="number" id="new-task-time" placeholder="分" min="1" value="3">
+                <input type="number" id="new-task-time" placeholder="分" min="0" value="3">
                 <span style="font-size:12px; color:#666;">分</span>
                 <button class="add-btn" onclick="addTask()">追加</button>
             </div>
@@ -292,19 +302,17 @@
     <audio id="bgm" loop></audio>
 
     <script>
-        // 漢数字変換
-        var kanjiNums = ['〇','一','二','三','四','五','六','七','八','九'];
+        const kanjiNums = ['〇','一','二','三','四','五','六','七','八','九'];
         function toKanji(num) {
             if (num < 10) return kanjiNums[num];
-            var ten = Math.floor(num / 10);
-            var one = num % 10;
-            var str = (ten > 1 ? kanjiNums[ten] : '') + '十';
-            if (one > 0) str += kanjiNums[one];
+            const ten = Math.floor(num / 10);
+            const one = num % 10;
+            const str = (ten > 1 ? kanjiNums[ten] : '') + '十' + (one > 0 ? kanjiNums[one] : '');
             return str;
         }
 
-        // 初期データ定義
-        var defaultTasksData = {
+        // 初期データ
+        const defaultTasksData = {
             home: {
                 morning: [{text:"足の指を動かす",time:1}, {text:"水を一杯飲む",time:1}, {text:"窓を開ける",time:1}, {text:"顔を洗う",time:3}, {text:"深呼吸を3回",time:1}],
                 day: [{text:"机を拭く",time:3}, {text:"メール1通",time:5}, {text:"ストレッチ",time:3}, {text:"コーヒー淹れる",time:5}, {text:"不要な紙を捨てる",time:3}],
@@ -319,7 +327,7 @@
             }
         };
 
-        var fragments = [
+        const fragments = [
             { theme: "呼吸", text: "水底に沈んだように息苦しい日もある。けれど、こうして浅くても息をしている。それだけで、私は今日を生き抜いたのだと言ってあげたい。" },
             { theme: "波紋", text: "たったひとつの小さな行動が、波紋のように広がっていく。今はまだ見えなくても、それは確実に未来の私へと届いているはずだ。" },
             { theme: "雨宿り", text: "立ち止まることは、逃げることじゃない。激しい雨をやり過ごすための、大切な雨宿りの時間だ。ここで羽根を休めて、また空が晴れるのを待てばいい。" },
@@ -328,45 +336,37 @@
             { theme: "時間", text: "流れる時間に追われる必要はない。私はただ、自分の呼吸の速度で、この一瞬を味わえばいいのだ。" }
         ];
 
-        // グローバル変数
-        var tasksData = {};
-        var collectedData = [];
-        var currentMode = 'home';
-        var currentTab = 'morning';
-        var currentZone = 'morning';
-        var rouletteInterval;
-        var timerInterval;
-        var totalSeconds = 180;
-        var currentTaskObj = null;
-        var bgm = document.getElementById('bgm');
+        let tasksData = {};
+        let collectedData = [];
+        let currentMode = 'home'; 
+        let currentTab = 'morning'; 
+        let currentZone = 'morning';
+        let rouletteInterval;
+        let timerInterval;
+        let totalSeconds = 180;
+        let currentTaskObj = null;
         
-        // BGM設定
+        const bgm = document.getElementById('bgm');
         bgm.src = "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"; 
         bgm.volume = 0.2;
 
-        // 初期化処理
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
             loadData();
             checkTime();
             updateCount();
             switchLocation('home');
-        };
-
-        // --- ロジック ---
+        });
 
         function switchLocation(mode) {
             currentMode = mode;
-            var btns = document.querySelectorAll('.loc-btn');
-            for(var i=0; i<btns.length; i++) {
-                btns[i].classList.remove('active');
-            }
+            document.querySelectorAll('.loc-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('loc-' + mode).classList.add('active');
             checkTime();
         }
 
         function checkTime() {
-            var hour = new Date().getHours();
+            const hour = new Date().getHours();
             if (hour >= 23) {
                 showNightMode();
                 return;
@@ -374,7 +374,7 @@
                 showDayMode();
             }
 
-            var msg = "";
+            let msg = "";
             if (hour >= 6 && hour < 10) { 
                 currentZone = 'morning'; 
                 msg = (currentMode === 'home') ? "朝の光の中で、小さく始める。" : "新しい一歩を、外の世界へ。";
@@ -392,13 +392,13 @@
                 msg = "静かな刻に、耳を澄ます。"; 
             }
             
-            var msgEl = document.getElementById('time-zone-msg');
+            const msgEl = document.getElementById('time-zone-msg');
             if(msgEl) msgEl.innerText = msg;
         }
 
         function openSettings() {
             document.getElementById('settings-modal').classList.add('active');
-            var label = document.getElementById('setting-mode-label');
+            const label = document.getElementById('setting-mode-label');
             if(label) label.innerText = (currentMode === 'home' ? "家" : "外");
             switchTab(currentZone || 'morning');
         }
@@ -409,36 +409,35 @@
 
         function switchTab(zone) {
             currentTab = zone;
-            var tabs = document.querySelectorAll('.tab');
-            for(var i=0; i<tabs.length; i++) {
-                tabs[i].classList.remove('active');
-            }
-            var activeTab = document.querySelector('.tab[onclick="switchTab(\'' + zone + '\')"]');
-            if(activeTab) activeTab.classList.add('active');
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${zone}')"]`).classList.add('active');
             renderTaskList();
         }
 
         function renderTaskList() {
-            var container = document.getElementById('task-list-container');
+            const container = document.getElementById('task-list-container');
             container.innerHTML = "";
-            var list = [];
-            if(tasksData[currentMode] && tasksData[currentMode][currentTab]) {
-                list = tasksData[currentMode][currentTab];
-            }
+            const list = tasksData[currentMode][currentTab] || [];
             
-            list.forEach(function(item, index) {
-                var div = document.createElement('div');
+            list.forEach((item, index) => {
+                const div = document.createElement('div');
                 div.className = 'task-item';
-                div.innerHTML = '<div class="task-info"><span>' + item.text + '</span><span class="task-time-badge">' + item.time + '分</span></div><span class="delete-btn" onclick="deleteTask(' + index + ')">×</span>';
+                div.innerHTML = `
+                    <div class="task-info">
+                        <span>${item.text}</span>
+                        <span class="task-time-badge">${item.time}分</span>
+                    </div>
+                    <span class="delete-btn" onclick="deleteTask(${index})">×</span>
+                `;
                 container.appendChild(div);
             });
         }
 
         function addTask() {
-            var input = document.getElementById('new-task-input');
-            var timeInput = document.getElementById('new-task-time');
-            var val = input.value.trim();
-            var t = parseInt(timeInput.value);
+            const input = document.getElementById('new-task-input');
+            const timeInput = document.getElementById('new-task-time');
+            const val = input.value.trim();
+            const t = parseInt(timeInput.value);
             
             if (val && t >= 0) {
                 if(!tasksData[currentMode]) tasksData[currentMode] = {};
@@ -462,7 +461,6 @@
 
         function resetDefaultTasks() {
             if(confirm("現在のモードのリストを初期状態に戻しますか？")) {
-                // ディープコピー
                 tasksData = JSON.parse(JSON.stringify(defaultTasksData));
                 saveTasks();
                 renderTaskList();
@@ -470,7 +468,7 @@
         }
 
         function loadTasks() {
-            var stored = localStorage.getItem('location_tasks');
+            const stored = localStorage.getItem('location_tasks_v28');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -479,16 +477,13 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v28', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
             checkTime();
-            var list = [];
-            if(tasksData[currentMode] && tasksData[currentMode][currentZone]) {
-                list = tasksData[currentMode][currentZone];
-            }
-
+            const list = tasksData[currentMode][currentZone];
+            
             if(!list || list.length === 0) {
                 alert("リストが空です。設定から追加してください。");
                 return;
@@ -498,23 +493,23 @@
             document.getElementById('btn-stop-roulette').classList.remove('hidden');
             document.getElementById('task-time-display').style.opacity = 0;
             
-            var textBox = document.getElementById('task-text');
-            rouletteInterval = setInterval(function() {
-                var r = Math.floor(Math.random() * list.length);
+            const textBox = document.getElementById('task-text');
+            rouletteInterval = setInterval(() => {
+                const r = Math.floor(Math.random() * list.length);
                 textBox.innerText = list[r].text;
             }, 70);
         }
 
         function stopRoulette() {
             clearInterval(rouletteInterval);
-            var list = tasksData[currentMode][currentZone];
-            var r = Math.floor(Math.random() * list.length);
+            const list = tasksData[currentMode][currentZone];
+            const r = Math.floor(Math.random() * list.length);
             
             currentTaskObj = list[r];
             document.getElementById('task-text').innerText = currentTaskObj.text;
             
-            var timeDisplay = document.getElementById('task-time-display');
-            timeDisplay.innerText = '（所要時間：' + currentTaskObj.time + '分）';
+            const timeDisplay = document.getElementById('task-time-display');
+            timeDisplay.innerText = `（所要時間：${currentTaskObj.time}分）`;
             timeDisplay.style.opacity = 1;
             
             playSoftSound();
@@ -525,9 +520,9 @@
         function startFocus() {
             document.getElementById('phase-roulette').classList.add('hidden');
             document.getElementById('phase-timer').classList.remove('hidden');
-            document.getElementById('timer-message').innerText = '「' + currentTaskObj.text + '」の時間';
+            document.getElementById('timer-message').innerText = `「${currentTaskObj.text}」の時間`;
             
-            bgm.play().catch(function(){});
+            bgm.play().catch(() => {});
             
             totalSeconds = currentTaskObj.time * 60;
             if(totalSeconds <= 0) {
@@ -535,7 +530,7 @@
                  return;
             }
             updateTimerKanji();
-            timerInterval = setInterval(function() {
+            timerInterval = setInterval(() => {
                 totalSeconds--;
                 updateTimerKanji();
                 if(totalSeconds <= 0) completeTask();
@@ -543,12 +538,12 @@
         }
 
         function updateTimerKanji() {
-            var m = Math.floor(totalSeconds / 60);
-            var s = totalSeconds % 60;
-            var mStr = m === 0 ? "〇" : toKanji(m);
-            var sStr = s < 10 ? "〇" + toKanji(s) : toKanji(s);
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            let mStr = m === 0 ? "〇" : toKanji(m);
+            let sStr = s < 10 ? "〇" + toKanji(s) : toKanji(s);
             if(s === 0) sStr = "〇〇";
-            document.getElementById('timer-display').innerText = 'あと ' + mStr + '分 ' + sStr + '秒';
+            document.getElementById('timer-display').innerText = `あと ${mStr}分 ${sStr}秒`;
         }
 
         function stopFocus() {
@@ -561,8 +556,8 @@
             clearInterval(timerInterval);
             bgm.pause();
             
-            var rand = Math.floor(Math.random() * fragments.length);
-            var fragment = fragments[rand];
+            const rand = Math.floor(Math.random() * fragments.length);
+            const fragment = fragments[rand];
             
             collectedData.push({
                 date: new Date(),
@@ -601,30 +596,30 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v3', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v28', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            var data = localStorage.getItem('anthology_data_v3');
+            const data = localStorage.getItem('anthology_data_v28');
             if(data) {
                 collectedData = JSON.parse(data);
-                collectedData.forEach(function(d) { d.date = new Date(d.date); });
+                collectedData.forEach(d => d.date = new Date(d.date));
             }
         }
 
         function playSoftSound() {
-            var AudioContext = window.AudioContext || window.webkitAudioContext;
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
             if(!AudioContext) return;
-            var ctx = new AudioContext();
-            var osc = ctx.createOscillator();
-            var gain = ctx.createGain();
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.type = 'sine';
             osc.frequency.setValueAtTime(440, ctx.currentTime);
             gain.gain.setValueAtTime(0.05, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-            osc.start(ctx.currentTime);
+            osc.start();
             osc.stop(ctx.currentTime + 0.3);
         }
 
@@ -633,15 +628,15 @@
                 alert("白紙です。");
                 return;
             }
-            var printArea = document.getElementById('print-area');
-            var now = new Date();
-            var dateStr = toKanji(now.getFullYear()) + '年 ' + toKanji(now.getMonth()+1) + '月 ' + toKanji(now.getDate()) + '日';
-            var html = '<div class="book-title-page"><div class="book-title">夜明けのアンソロジー</div><div class="book-date">' + dateStr + '</div></div>';
+            const printArea = document.getElementById('print-area');
+            const now = new Date();
+            const dateStr = `${toKanji(now.getFullYear())}年 ${toKanji(now.getMonth()+1)}月 ${toKanji(now.getDate())}日`;
+            let html = `<div class="book-title-page"><div class="book-title">夜明けのアンソロジー</div><div class="book-date">${dateStr}</div></div>`;
             
-            collectedData.forEach(function(item) {
-                var h = new Date(item.date).getHours();
-                var m = new Date(item.date).getMinutes();
-                html += '<div class="chapter"><div class="chapter-header">試み：' + item.action + '</div><div class="chapter-text">' + item.content.text + '</div><div class="chapter-footer">― ' + item.content.theme + '</div></div>';
+            collectedData.forEach(item => {
+                const h = new Date(item.date).getHours();
+                const m = new Date(item.date).getMinutes();
+                html += `<div class="chapter"><div class="chapter-header">試み：${item.action}</div><div class="chapter-text">${item.content.text}</div><div class="chapter-footer">― ${item.content.theme}</div></div>`;
             });
             
             printArea.innerHTML = html;
