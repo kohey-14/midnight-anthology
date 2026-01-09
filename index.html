@@ -66,7 +66,7 @@
             flex-grow: 1; width: 100%;
             display: flex; justify-content: center; align-items: center;
             position: relative;
-            writing-mode: horizontal-tb; /* 安定化のため一時リセット */
+            writing-mode: horizontal-tb; 
         }
 
         .task-text {
@@ -155,7 +155,6 @@
         }
         #settings-modal.active, #reader-modal.active { display: flex; }
 
-        /* 設定画面（こちらは小窓のまま） */
         #settings-modal { writing-mode: horizontal-tb; flex-direction: column; }
         .settings-content {
             width: 85%; max-width: 400px; background: var(--paper-color);
@@ -165,11 +164,10 @@
             transition: background-color var(--transition-speed);
         }
 
-        /* 読書画面（全画面化修正） */
+        /* 読書画面修正 */
         #reader-modal { 
             writing-mode: vertical-rl; 
-            background: var(--paper-color); /* 背景色を紙の色に */
-            /* 全画面グリッド適用 */
+            background: var(--paper-color); 
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
@@ -180,20 +178,20 @@
             padding: 40px 20px; 
             box-sizing: border-box;
             overflow-x: scroll; overflow-y: hidden; 
-            display: block; /* 全画面スクロール領域 */
-            
-            /* グリッドと文字の位置合わせ */
             display: flex;
-            align-items: center; /* 縦方向中央 */
+            align-items: center; 
         }
         
-        /* 文章の塊 */
         .reader-entry {
-            height: 80%; /* 上下に余白を持たせる */
+            /* 高さを制限して、下のボタンと被らないようにする */
+            height: calc(100% - 100px); 
+            margin-bottom: 50px; /* 下に余白 */
+            
             border-left: 1px double var(--accent-color);
-            padding-left: calc(var(--grid-size) * 1.5); margin-left: calc(var(--grid-size) * 1.5);
+            padding-left: calc(var(--grid-size) * 1.5); 
+            margin-left: calc(var(--grid-size) * 1.5);
             display: flex; flex-direction: column; justify-content: space-between;
-            flex-shrink: 0; /* 潰れないように */
+            flex-shrink: 0;
         }
         .reader-entry:first-child { border-left: none; }
         
@@ -204,24 +202,29 @@
             line-height: var(--grid-size); 
             letter-spacing: 0.3em; 
             white-space: pre-wrap; 
-            flex-grow: 1; /* 余白を埋める */
+            flex-grow: 1; 
         }
         
         .reader-date { font-size: 12px; margin-top: var(--grid-size); text-align: right; opacity: 0.4; font-family: 'Zen Maru Gothic', sans-serif; }
         
-        /* 閉じるボタン */
+        /* 閉じるボタン（修正：視認性向上） */
         .reader-close-btn {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             writing-mode: horizontal-tb; 
-            background: transparent; 
-            padding: 10px 30px;
-            border: none;
+            /* しっかり背景色をつける */
+            background: var(--paper-color); 
+            padding: 12px 30px;
+            border: 1px solid var(--grid-color);
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            
             cursor: pointer; color: var(--text-color);
             font-family: 'Hina Mincho', serif;
-            font-size: 16px; opacity: 0.6;
+            font-size: 15px; letter-spacing: 0.1em;
             transition: 0.3s;
+            z-index: 300;
         }
-        .reader-close-btn:hover { opacity: 1; letter-spacing: 0.2em; }
+        .reader-close-btn:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 
         .modal-title { font-family:'Hina Mincho'; font-size:18px; margin-bottom:20px; text-align:center; }
         .tabs { display: flex; border-bottom: 1px solid var(--grid-color); margin-bottom: 20px; }
@@ -592,7 +595,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v45');
+            const stored = localStorage.getItem('location_tasks_v46');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -601,7 +604,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v45', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v46', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -744,11 +747,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v45', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v46', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v45');
+            const data = localStorage.getItem('anthology_data_v46');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
