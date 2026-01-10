@@ -136,6 +136,12 @@
         .btn:hover { opacity: 1; transform: scale(1.05); }
         .btn:active { opacity: 0.4; transform: scale(0.95); }
         .btn-night { color: var(--accent-color); opacity: 1; font-weight: bold; }
+        
+        /* 「紡がない」ボタン用のスタイル */
+        .btn-cancel {
+            font-size: 14px; opacity: 0.4; padding: 10px;
+        }
+        .btn-cancel:hover { opacity: 0.7; }
 
         .hidden { display: none !important; }
 
@@ -164,7 +170,7 @@
             transition: background-color var(--transition-speed);
         }
 
-        /* 読書画面修正 */
+        /* 読書画面 */
         #reader-modal { 
             writing-mode: vertical-rl; 
             background: var(--paper-color); 
@@ -183,10 +189,8 @@
         }
         
         .reader-entry {
-            /* 高さを制限して、下のボタンと被らないようにする */
             height: calc(100% - 100px); 
-            margin-bottom: 50px; /* 下に余白 */
-            
+            margin-bottom: 50px; 
             border-left: 1px double var(--accent-color);
             padding-left: calc(var(--grid-size) * 1.5); 
             margin-left: calc(var(--grid-size) * 1.5);
@@ -207,17 +211,14 @@
         
         .reader-date { font-size: 12px; margin-top: var(--grid-size); text-align: right; opacity: 0.4; font-family: 'Zen Maru Gothic', sans-serif; }
         
-        /* 閉じるボタン（修正：視認性向上） */
         .reader-close-btn {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             writing-mode: horizontal-tb; 
-            /* しっかり背景色をつける */
             background: var(--paper-color); 
             padding: 12px 30px;
             border: 1px solid var(--grid-color);
             border-radius: 30px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            
             cursor: pointer; color: var(--text-color);
             font-family: 'Hina Mincho', serif;
             font-size: 15px; letter-spacing: 0.1em;
@@ -286,7 +287,8 @@
                     <button class="btn" id="btn-spin" onclick="startRoulette()">探す</button>
                     <button class="btn hidden" id="btn-stop-roulette" onclick="stopRoulette()">此処にする</button>
                     <button class="btn hidden" id="btn-start-task" onclick="startFocus()">時間を紡ぐ</button>
-                </div>
+                    <button class="btn btn-cancel hidden" id="btn-cancel-task" onclick="resetPhase()">紡がない</button>
+                    </div>
             </div>
 
             <div id="phase-timer" class="hidden" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
@@ -595,7 +597,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v46');
+            const stored = localStorage.getItem('location_tasks_v47');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -604,7 +606,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v46', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v47', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -652,12 +654,14 @@
             playSoftSound();
             document.getElementById('btn-stop-roulette').classList.add('hidden');
             document.getElementById('btn-start-task').classList.remove('hidden');
+            document.getElementById('btn-cancel-task').classList.remove('hidden'); // キャンセルボタン表示
         }
 
         function startFocus() {
             document.getElementById('phase-roulette').classList.add('hidden');
             document.getElementById('phase-timer').classList.remove('hidden');
             document.getElementById('timer-message').innerText = `「${currentTaskObj.text}」の時間`;
+            document.getElementById('btn-cancel-task').classList.add('hidden'); // キャンセルボタン隠す
             
             playBGM();
             
@@ -721,6 +725,7 @@
             document.getElementById('phase-timer').classList.add('hidden');
             document.getElementById('phase-roulette').classList.remove('hidden');
             document.getElementById('btn-start-task').classList.add('hidden');
+            document.getElementById('btn-cancel-task').classList.add('hidden'); // 隠す
             document.getElementById('btn-spin').classList.remove('hidden');
             
             const textBox = document.getElementById('task-text');
@@ -747,11 +752,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v46', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v47', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v46');
+            const data = localStorage.getItem('anthology_data_v47');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
