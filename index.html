@@ -136,11 +136,7 @@
         .btn:hover { opacity: 1; transform: scale(1.05); }
         .btn:active { opacity: 0.4; transform: scale(0.95); }
         .btn-night { color: var(--accent-color); opacity: 1; font-weight: bold; }
-        
-        /* 「紡がない」ボタン用のスタイル */
-        .btn-cancel {
-            font-size: 14px; opacity: 0.4; padding: 10px;
-        }
+        .btn-cancel { font-size: 14px; opacity: 0.4; padding: 10px; }
         .btn-cancel:hover { opacity: 0.7; }
 
         .hidden { display: none !important; }
@@ -170,32 +166,50 @@
             transition: background-color var(--transition-speed);
         }
 
-        /* 読書画面 */
+        /* --- 読書画面（iPhoneスクロール修正版） --- */
         #reader-modal { 
+            /* 背景設定 */
             writing-mode: vertical-rl; 
             background: var(--paper-color); 
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
+            
+            /* モーダル自体のスクロールは無効化 */
+            overflow: hidden; 
+            align-items: flex-start; /* 修正: 上揃え（縦書きなので右揃え） */
         }
         
         .reader-content {
-            width: 100%; height: 100%; 
-            padding: 40px 20px; 
+            /* スクロール領域の確保 */
+            width: 100%; height: 100%;
+            padding: 40px 20px 100px 20px; /* 下(左)にボタン用余白をたっぷり取る */
             box-sizing: border-box;
-            overflow-x: scroll; overflow-y: hidden; 
-            display: flex;
-            align-items: center; 
+            
+            /* ▼▼▼ iPhoneスクロール対策のキモ ▼▼▼ */
+            display: block; /* Flex廃止 */
+            overflow-x: scroll; /* 横スクロール有効 */
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch; /* 慣性スクロール有効 */
+            
+            /* 中身の折り返しを禁止して横に伸ばす */
+            white-space: nowrap; 
         }
         
+        /* 各エントリー（inline-block化） */
         .reader-entry {
-            height: calc(100% - 100px); 
-            margin-bottom: 50px; 
+            display: inline-flex; /* 横並びにする */
+            flex-direction: column; /* 中身は縦書き */
+            justify-content: space-between;
+            
+            height: 100%; /* 高さ一杯 */
+            vertical-align: top;
+            
             border-left: 1px double var(--accent-color);
             padding-left: calc(var(--grid-size) * 1.5); 
             margin-left: calc(var(--grid-size) * 1.5);
-            display: flex; flex-direction: column; justify-content: space-between;
-            flex-shrink: 0;
+            
+            white-space: normal; /* 中身の改行は許可 */
         }
         .reader-entry:first-child { border-left: none; }
         
@@ -205,11 +219,12 @@
             font-size: var(--font-size); 
             line-height: var(--grid-size); 
             letter-spacing: 0.3em; 
-            white-space: pre-wrap; 
-            flex-grow: 1; 
+            /* 長文対応 */
+            max-height: 70%;
+            overflow: visible;
         }
         
-        .reader-date { font-size: 12px; margin-top: var(--grid-size); text-align: right; opacity: 0.4; font-family: 'Zen Maru Gothic', sans-serif; }
+        .reader-date { font-size: 12px; margin-top: auto; text-align: right; opacity: 0.4; font-family: 'Zen Maru Gothic', sans-serif; }
         
         .reader-close-btn {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -288,7 +303,7 @@
                     <button class="btn hidden" id="btn-stop-roulette" onclick="stopRoulette()">此処にする</button>
                     <button class="btn hidden" id="btn-start-task" onclick="startFocus()">時間を紡ぐ</button>
                     <button class="btn btn-cancel hidden" id="btn-cancel-task" onclick="resetPhase()">紡がない</button>
-                    </div>
+                </div>
             </div>
 
             <div id="phase-timer" class="hidden" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
@@ -597,7 +612,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v47');
+            const stored = localStorage.getItem('location_tasks_v48');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -606,7 +621,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v47', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v48', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -654,14 +669,14 @@
             playSoftSound();
             document.getElementById('btn-stop-roulette').classList.add('hidden');
             document.getElementById('btn-start-task').classList.remove('hidden');
-            document.getElementById('btn-cancel-task').classList.remove('hidden'); // キャンセルボタン表示
+            document.getElementById('btn-cancel-task').classList.remove('hidden');
         }
 
         function startFocus() {
             document.getElementById('phase-roulette').classList.add('hidden');
             document.getElementById('phase-timer').classList.remove('hidden');
             document.getElementById('timer-message').innerText = `「${currentTaskObj.text}」の時間`;
-            document.getElementById('btn-cancel-task').classList.add('hidden'); // キャンセルボタン隠す
+            document.getElementById('btn-cancel-task').classList.add('hidden');
             
             playBGM();
             
@@ -725,7 +740,7 @@
             document.getElementById('phase-timer').classList.add('hidden');
             document.getElementById('phase-roulette').classList.remove('hidden');
             document.getElementById('btn-start-task').classList.add('hidden');
-            document.getElementById('btn-cancel-task').classList.add('hidden'); // 隠す
+            document.getElementById('btn-cancel-task').classList.add('hidden');
             document.getElementById('btn-spin').classList.remove('hidden');
             
             const textBox = document.getElementById('task-text');
@@ -752,11 +767,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v47', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v48', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v47');
+            const data = localStorage.getItem('anthology_data_v48');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
