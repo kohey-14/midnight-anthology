@@ -157,74 +157,114 @@
         }
         #settings-modal.active, #reader-modal.active { display: flex; }
 
+        /* --- 設定画面（修正：ボタンが隠れないように） --- */
         #settings-modal { writing-mode: horizontal-tb; flex-direction: column; }
         .settings-content {
             width: 85%; max-width: 400px; background: var(--paper-color);
-            color: var(--text-color); padding: 30px; border-radius: 4px; 
+            color: var(--text-color); padding: 25px; border-radius: 4px; 
             border: 1px solid var(--grid-color); box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            max-height: 80vh; display: flex; flex-direction: column;
+            max-height: 85vh; display: flex; flex-direction: column;
             transition: background-color var(--transition-speed);
         }
 
-        /* --- 読書画面（iPhoneスクロール修正版） --- */
+        .input-group { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 20px; 
+            align-items: center; 
+            /* 幅いっぱいを使う */
+            width: 100%;
+        }
+        /* 入力欄を伸縮可能に */
+        #new-task-input { 
+            flex: 1; /* 残りの幅を全部使う */
+            padding: 10px; 
+            border: 1px solid var(--grid-color); 
+            background: transparent; color: var(--text-color); 
+            border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho'; 
+            min-width: 0; /* フレックスボックスでの縮小許可 */
+        }
+        #new-task-time { 
+            width: 50px; flex-shrink: 0; /* 時間入力は縮めない */
+            padding: 10px 5px; text-align: center;
+            border: 1px solid var(--grid-color); 
+            background: transparent; color: var(--text-color); 
+            border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho';
+        }
+        .add-btn { 
+            flex-shrink: 0; /* 追加ボタンは絶対に縮めない */
+            background: var(--accent-color); color: #fff; 
+            border: none; padding: 10px 15px; 
+            border-radius: 2px; cursor: pointer; font-size: 13px; 
+            white-space: nowrap; /* 文字折り返し禁止 */
+        }
+
+        /* --- 読書画面（修正：崩れ防止・全画面） --- */
         #reader-modal { 
-            /* 背景設定 */
             writing-mode: vertical-rl; 
             background: var(--paper-color); 
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
-            
-            /* モーダル自体のスクロールは無効化 */
-            overflow: hidden; 
-            align-items: flex-start; /* 修正: 上揃え（縦書きなので右揃え） */
+            overflow: hidden; /* 全体スクロール禁止 */
         }
         
         .reader-content {
-            /* スクロール領域の確保 */
-            width: 100%; height: 100%;
-            padding: 40px 20px 100px 20px; /* 下(左)にボタン用余白をたっぷり取る */
+            width: 100%; height: 100%; 
+            padding: 40px 20px 120px 20px; /* 下(左)にボタン用余白をたっぷり取る */
             box-sizing: border-box;
             
-            /* ▼▼▼ iPhoneスクロール対策のキモ ▼▼▼ */
-            display: block; /* Flex廃止 */
-            overflow-x: scroll; /* 横スクロール有効 */
+            display: block; /* Flexをやめてブロック要素に */
+            overflow-x: scroll; /* 横スクロール */
             overflow-y: hidden;
-            -webkit-overflow-scrolling: touch; /* 慣性スクロール有効 */
-            
-            /* 中身の折り返しを禁止して横に伸ばす */
-            white-space: nowrap; 
+            white-space: nowrap; /* 要素を横並びに */
+            -webkit-overflow-scrolling: touch; /* 慣性スクロール */
         }
         
-        /* 各エントリー（inline-block化） */
+        /* 1つの物語の塊 */
         .reader-entry {
-            display: inline-flex; /* 横並びにする */
-            flex-direction: column; /* 中身は縦書き */
+            /* インラインブロックで横に並べる */
+            display: inline-flex; 
+            flex-direction: column; 
             justify-content: space-between;
             
-            height: 100%; /* 高さ一杯 */
-            vertical-align: top;
+            /* 高さ制限（ここが重要：ボタンと重ならないように） */
+            height: 100%; 
+            max-height: 75vh; /* 画面高さの75%までに制限 */
             
-            border-left: 1px double var(--accent-color);
-            padding-left: calc(var(--grid-size) * 1.5); 
+            vertical-align: top; /* 上揃え */
             margin-left: calc(var(--grid-size) * 1.5);
+            padding-left: calc(var(--grid-size) * 1.5);
+            border-left: 1px double var(--accent-color);
             
-            white-space: normal; /* 中身の改行は許可 */
+            white-space: normal; /* 中身のテキストは折り返し許可 */
         }
         .reader-entry:first-child { border-left: none; }
         
-        .reader-action { font-size: 14px; opacity: 0.6; margin-bottom: var(--grid-size); font-family: 'Zen Maru Gothic', sans-serif; }
+        .reader-action { 
+            font-size: 14px; opacity: 0.6; 
+            margin-bottom: var(--grid-size); 
+            font-family: 'Zen Maru Gothic', sans-serif; 
+            flex-shrink: 0;
+        }
         
         .reader-text { 
             font-size: var(--font-size); 
             line-height: var(--grid-size); 
             letter-spacing: 0.3em; 
-            /* 長文対応 */
-            max-height: 70%;
-            overflow: visible;
+            /* テキスト部分のスクロール許可（長文対策） */
+            overflow-y: visible; 
+            flex-grow: 1;
         }
         
-        .reader-date { font-size: 12px; margin-top: auto; text-align: right; opacity: 0.4; font-family: 'Zen Maru Gothic', sans-serif; }
+        .reader-date { 
+            font-size: 12px; 
+            margin-top: var(--grid-size); 
+            text-align: right; 
+            opacity: 0.4; 
+            font-family: 'Zen Maru Gothic', sans-serif; 
+            flex-shrink: 0;
+        }
         
         .reader-close-btn {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
@@ -246,10 +286,7 @@
         .tabs { display: flex; border-bottom: 1px solid var(--grid-color); margin-bottom: 20px; }
         .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 13px; opacity: 0.5; }
         .tab.active { opacity: 1; border-bottom: 2px solid var(--accent-color); font-weight: bold; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input { padding: 10px; border: 1px solid var(--grid-color); background:transparent; color:var(--text-color); border-radius: 2px; font-size:14px; flex:1; font-family:'Hina Mincho'; }
-        #new-task-time { width: 60px; flex:none; text-align:center; }
-        .add-btn { background: var(--accent-color); color: #fff; border: none; padding: 0 20px; border-radius: 2px; cursor: pointer; font-size:13px; }
+        
         .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; min-height: 100px;}
         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--grid-color); font-size:15px; font-family:'Hina Mincho'; }
         .close-modal-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--grid-color); color: var(--text-color); cursor: pointer; font-family:'Hina Mincho'; border-radius:2px; }
@@ -344,11 +381,13 @@
                 <div class="tab" onclick="switchTab('evening')">夕</div>
                 <div class="tab" onclick="switchTab('night')">夜</div>
             </div>
+            
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="行動を入力">
                 <input type="number" id="new-task-time" placeholder="分" min="0" value="3">
                 <button class="add-btn" onclick="addTask()">追加</button>
             </div>
+            
             <div class="task-list" id="task-list-container"></div>
             
             <div class="divider"></div>
@@ -612,7 +651,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v48');
+            const stored = localStorage.getItem('location_tasks_v49');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -621,7 +660,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v48', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v49', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -767,11 +806,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v48', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v49', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v48');
+            const data = localStorage.getItem('anthology_data_v49');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
