@@ -157,7 +157,7 @@
         }
         #settings-modal.active, #reader-modal.active { display: flex; }
 
-        /* --- 設定画面（修正：ボタンが隠れないように） --- */
+        /* 設定画面 */
         #settings-modal { writing-mode: horizontal-tb; flex-direction: column; }
         .settings-content {
             width: 85%; max-width: 400px; background: var(--paper-color);
@@ -168,93 +168,99 @@
         }
 
         .input-group { 
-            display: flex; 
-            gap: 8px; 
-            margin-bottom: 20px; 
-            align-items: center; 
-            /* 幅いっぱいを使う */
-            width: 100%;
+            display: flex; gap: 8px; margin-bottom: 20px; align-items: center; width: 100%;
         }
-        /* 入力欄を伸縮可能に */
         #new-task-input { 
-            flex: 1; /* 残りの幅を全部使う */
-            padding: 10px; 
+            flex: 1; padding: 10px; 
             border: 1px solid var(--grid-color); 
             background: transparent; color: var(--text-color); 
             border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho'; 
-            min-width: 0; /* フレックスボックスでの縮小許可 */
+            min-width: 0; 
         }
         #new-task-time { 
-            width: 50px; flex-shrink: 0; /* 時間入力は縮めない */
+            width: 50px; flex-shrink: 0; 
             padding: 10px 5px; text-align: center;
             border: 1px solid var(--grid-color); 
             background: transparent; color: var(--text-color); 
             border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho';
         }
         .add-btn { 
-            flex-shrink: 0; /* 追加ボタンは絶対に縮めない */
-            background: var(--accent-color); color: #fff; 
+            flex-shrink: 0; background: var(--accent-color); color: #fff; 
             border: none; padding: 10px 15px; 
             border-radius: 2px; cursor: pointer; font-size: 13px; 
-            white-space: nowrap; /* 文字折り返し禁止 */
+            white-space: nowrap; 
         }
 
-        /* --- 読書画面（修正：崩れ防止・全画面） --- */
+        /* --- 読書画面（iPhoneスクロール修正版） --- */
         #reader-modal { 
+            /* 縦書きモード */
             writing-mode: vertical-rl; 
             background: var(--paper-color); 
+            /* 背景グリッド */
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
-            overflow: hidden; /* 全体スクロール禁止 */
+            /* 全体スクロールは無効化 */
+            overflow: hidden; 
+            align-items: flex-start; /* 右端（縦書きの上）から開始 */
         }
         
         .reader-content {
-            width: 100%; height: 100%; 
-            padding: 40px 20px 120px 20px; /* 下(左)にボタン用余白をたっぷり取る */
+            /* ▼ 修正点: 高さを計算式で固定し、必ずスクロールさせる ▼ */
+            width: 100%; 
+            height: calc(100% - 100px); /* ボタンの分を引いた高さ */
+            margin-bottom: 100px; /* ボタンと被らないように */
+            
+            padding: 40px 20px;
             box-sizing: border-box;
             
-            display: block; /* Flexをやめてブロック要素に */
-            overflow-x: scroll; /* 横スクロール */
+            /* 横スクロール（縦書きなので）を有効化 */
+            overflow-x: scroll; 
             overflow-y: hidden;
-            white-space: nowrap; /* 要素を横並びに */
-            -webkit-overflow-scrolling: touch; /* 慣性スクロール */
+            
+            /* iOS慣性スクロール */
+            -webkit-overflow-scrolling: touch; 
+            
+            /* Flexを使わず、ブロック要素で並べる（これが一番安定します） */
+            display: block; 
+            white-space: nowrap; 
         }
         
         /* 1つの物語の塊 */
         .reader-entry {
-            /* インラインブロックで横に並べる */
-            display: inline-flex; 
-            flex-direction: column; 
-            justify-content: space-between;
+            display: inline-block; /* 横に並べる */
+            vertical-align: top;
+            height: 100%; /* 親の高さに合わせる */
             
-            /* 高さ制限（ここが重要：ボタンと重ならないように） */
-            height: 100%; 
-            max-height: 75vh; /* 画面高さの75%までに制限 */
-            
-            vertical-align: top; /* 上揃え */
             margin-left: calc(var(--grid-size) * 1.5);
             padding-left: calc(var(--grid-size) * 1.5);
             border-left: 1px double var(--accent-color);
             
-            white-space: normal; /* 中身のテキストは折り返し許可 */
+            white-space: normal; /* 中身の改行は許可 */
+            /* 中身の配置 */
+            position: relative;
         }
         .reader-entry:first-child { border-left: none; }
         
+        /* 内部レイアウト調整（position absoluteを使わず配置） */
+        .entry-inner {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
         .reader-action { 
             font-size: 14px; opacity: 0.6; 
             margin-bottom: var(--grid-size); 
             font-family: 'Zen Maru Gothic', sans-serif; 
-            flex-shrink: 0;
         }
         
         .reader-text { 
             font-size: var(--font-size); 
             line-height: var(--grid-size); 
             letter-spacing: 0.3em; 
-            /* テキスト部分のスクロール許可（長文対策） */
-            overflow-y: visible; 
-            flex-grow: 1;
+            flex-grow: 1; /* 余白を埋める */
         }
         
         .reader-date { 
@@ -263,11 +269,10 @@
             text-align: right; 
             opacity: 0.4; 
             font-family: 'Zen Maru Gothic', sans-serif; 
-            flex-shrink: 0;
         }
         
         .reader-close-btn {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             writing-mode: horizontal-tb; 
             background: var(--paper-color); 
             padding: 12px 30px;
@@ -330,9 +335,7 @@
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
-                    
                     <div id="task-text" class="task-text">ページをめくる</div>
-                    
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
                 <div class="button-area">
@@ -565,9 +568,11 @@
                 
                 html += `
                     <div class="reader-entry">
-                        <div class="reader-action">「${item.action}」ノ時</div>
-                        <div class="reader-text">${item.content.text}</div>
-                        <div class="reader-date">（${timeStr}）</div>
+                        <div class="entry-inner">
+                            <div class="reader-action">「${item.action}」ノ時</div>
+                            <div class="reader-text">${item.content.text}</div>
+                            <div class="reader-date">（${timeStr}）</div>
+                        </div>
                     </div>
                 `;
             });
