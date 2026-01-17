@@ -148,16 +148,16 @@
             writing-mode: vertical-rl; text-orientation: upright;
         }
 
-        /* --- モーダル設定 --- */
-        #settings-modal, #reader-modal {
+        /* --- 設定モーダル --- */
+        #settings-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); z-index: 200;
             display: none; justify-content: center; align-items: center;
             backdrop-filter: blur(4px);
+            writing-mode: horizontal-tb; flex-direction: column;
         }
-        #settings-modal.active, #reader-modal.active { display: flex; }
+        #settings-modal.active { display: flex; }
 
-        #settings-modal { writing-mode: horizontal-tb; flex-direction: column; }
         .settings-content {
             width: 85%; max-width: 400px; background: var(--paper-color);
             color: var(--text-color); padding: 25px; border-radius: 4px; 
@@ -166,94 +166,71 @@
             transition: background-color var(--transition-speed);
         }
 
-        .input-group { 
-            display: flex; gap: 8px; margin-bottom: 20px; align-items: center; width: 100%;
-        }
-        #new-task-input { 
-            flex: 1; padding: 10px; 
-            border: 1px solid var(--grid-color); 
-            background: transparent; color: var(--text-color); 
-            border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho'; 
-            min-width: 0; 
-        }
-        #new-task-time { 
-            width: 50px; flex-shrink: 0; 
-            padding: 10px 5px; text-align: center;
-            border: 1px solid var(--grid-color); 
-            background: transparent; color: var(--text-color); 
-            border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho';
-        }
-        .add-btn { 
-            flex-shrink: 0; background: var(--accent-color); color: #fff; 
-            border: none; padding: 10px 15px; 
-            border-radius: 2px; cursor: pointer; font-size: 13px; 
-            white-space: nowrap; 
-        }
-
-        /* --- 読書画面（iPhone完全修正版） --- */
+        /* --- 読書画面（横スライド・スナップ対応版） --- */
         #reader-modal { 
-            writing-mode: vertical-rl; 
-            background: var(--paper-color); 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--paper-color); /* 紙の色 */
+            z-index: 200;
+            
+            /* グリッド背景 */
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
-            /* 全体スクロールは無効化 */
-            overflow: hidden; 
-            align-items: flex-start; /* 右端（縦書きの上）から開始 */
+            
+            display: none;
+            flex-direction: column; /* 縦並び（閉じるボタンを下に置くため） */
+            
+            /* 全体の書き方向をリセット */
+            writing-mode: horizontal-tb;
         }
+        #reader-modal.active { display: flex; }
         
         .reader-content {
-            /* 修正: 絶対配置で全画面を確保 */
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            width: 100vw; height: 100vh;
+            flex-grow: 1; /* 残りのスペースを埋める */
+            width: 100%;
             
-            /* 上下のパディングを大きく取る */
-            padding-top: 60px;
-            padding-bottom: 150px; /* ボタンと被らないように大きく確保 */
-            padding-right: 30px; /* 読み始めの位置 */
+            /* 横スクロール設定 */
+            display: flex;
+            flex-direction: row; /* 横並び */
+            overflow-x: auto;
+            overflow-y: hidden;
             
+            /* スナップ設定 */
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            
+            align-items: center; /* 上下中央 */
+            padding: 0 10vw; /* 左右に少し余白 */
             box-sizing: border-box;
             
-            /* 横スクロール強制有効化 */
-            overflow-x: auto; 
-            overflow-y: hidden;
-            -webkit-overflow-scrolling: touch; 
-            
-            /* 縦書きの配置 */
-            writing-mode: vertical-rl;
-            display: block; 
-            white-space: nowrap; 
+            /* 右から左へ並べる設定（dir="rtl" はHTML側で制御） */
         }
         
-        /* 物語の塊 */
+        /* 1つの物語カード */
         .reader-entry {
-            display: inline-block; 
-            vertical-align: top;
+            /* サイズ固定・スナップ */
+            flex: 0 0 80vw; /* 画面幅の80% */
+            height: 70vh;   /* 画面高さの70% */
+            scroll-snap-align: center;
             
-            /* 高さを画面の70%に制限（これでボタンに被らない） */
-            height: 70vh; 
+            margin: 0 15px;
+            padding: 20px;
+            box-sizing: border-box;
             
-            margin-left: calc(var(--grid-size) * 1.5);
-            padding-left: calc(var(--grid-size) * 1.5);
-            border-left: 1px double var(--accent-color);
+            /* カードのデザイン */
+            border: 1px solid var(--accent-color);
+            background: rgba(255,255,255,0.1); /* ほんのり背景 */
             
-            white-space: normal; /* 中身の改行許可 */
-            position: relative;
-        }
-        .reader-entry:first-child { border-left: none; }
-        
-        /* 内部レイアウト */
-        .reader-inner {
-            height: 100%;
+            /* 中身は縦書き */
+            writing-mode: vertical-rl;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-
+        
         .reader-action { 
             font-size: 14px; opacity: 0.6; 
-            margin-bottom: var(--grid-size); 
+            margin-bottom: 10px; 
             font-family: 'Zen Maru Gothic', sans-serif; 
             flex-shrink: 0;
         }
@@ -261,48 +238,52 @@
         .reader-text { 
             font-size: var(--font-size); 
             line-height: var(--grid-size); 
-            letter-spacing: 0.3em; 
-            overflow-y: visible; 
+            letter-spacing: 0.2em; 
+            overflow-y: auto; /* 長文時は縦書きスクロール */
             flex-grow: 1;
         }
         
         .reader-date { 
             font-size: 12px; 
-            margin-top: var(--grid-size); 
+            margin-top: 20px; 
             text-align: right; 
             opacity: 0.4; 
             font-family: 'Zen Maru Gothic', sans-serif; 
             flex-shrink: 0;
         }
         
+        .reader-close-area {
+            height: 100px; /* ボタンエリア確保 */
+            width: 100%;
+            display: flex; justify-content: center; align-items: center;
+            flex-shrink: 0;
+        }
+        
         .reader-close-btn {
-            position: fixed; 
-            bottom: 40px; /* 下から少し浮かせる */
-            left: 50%; transform: translateX(-50%);
-            writing-mode: horizontal-tb; 
             background: var(--paper-color); 
             padding: 12px 30px;
             border: 1px solid var(--grid-color);
             border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             cursor: pointer; color: var(--text-color);
             font-family: 'Hina Mincho', serif;
-            font-size: 16px; letter-spacing: 0.1em;
-            z-index: 300;
+            font-size: 15px; letter-spacing: 0.1em;
         }
 
+        .input-group { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; width: 100%; }
+        #new-task-input { flex: 1; padding: 10px; border: 1px solid var(--grid-color); background: transparent; color: var(--text-color); border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho'; min-width: 0; }
+        #new-task-time { width: 50px; flex-shrink: 0; padding: 10px 5px; text-align: center; border: 1px solid var(--grid-color); background: transparent; color: var(--text-color); border-radius: 2px; font-size: 14px; font-family: 'Hina Mincho'; }
+        .add-btn { flex-shrink: 0; background: var(--accent-color); color: #fff; border: none; padding: 10px 15px; border-radius: 2px; cursor: pointer; font-size: 13px; white-space: nowrap; }
         .modal-title { font-family:'Hina Mincho'; font-size:18px; margin-bottom:20px; text-align:center; }
         .tabs { display: flex; border-bottom: 1px solid var(--grid-color); margin-bottom: 20px; }
         .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-size: 13px; opacity: 0.5; }
         .tab.active { opacity: 1; border-bottom: 2px solid var(--accent-color); font-weight: bold; }
-        
         .task-list { flex: 1; overflow-y: auto; border-top: 1px solid var(--grid-color); margin-bottom: 20px; min-height: 100px;}
         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--grid-color); font-size:15px; font-family:'Hina Mincho'; }
         .close-modal-btn { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--grid-color); color: var(--text-color); cursor: pointer; font-family:'Hina Mincho'; border-radius:2px; }
         .delete-btn { opacity: 0.5; cursor: pointer; padding: 0 10px; }
         .menu-btn { width: 100%; padding: 12px; text-align:left; background: transparent; border: none; color: var(--text-color); cursor: pointer; font-family:'Hina Mincho'; font-size:14px; display:flex; justify-content:space-between; opacity:0.8; }
         .divider { border-bottom: 1px solid var(--grid-color); margin: 20px 0; width: 100%; opacity: 0.5; }
-
         .debug-btn { position: fixed; bottom: 10px; right: 10px; writing-mode: horizontal-tb; font-size: 10px; color: var(--grid-color); border:none; background:none; cursor: pointer; }
 
         #print-area { display: none; }
@@ -335,13 +316,10 @@
 
     <div class="app-container">
         <div id="day-mode" style="display:flex; flex-direction:column; align-items:center; height:100%; width:100%;">
-            
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
-                    
                     <div id="task-text" class="task-text">ページをめくる</div>
-                    
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
                 <div class="button-area">
@@ -390,15 +368,12 @@
                 <div class="tab" onclick="switchTab('evening')">夕</div>
                 <div class="tab" onclick="switchTab('night')">夜</div>
             </div>
-            
             <div class="input-group">
                 <input type="text" id="new-task-input" placeholder="行動を入力">
                 <input type="number" id="new-task-time" placeholder="分" min="0" value="3">
                 <button class="add-btn" onclick="addTask()">追加</button>
             </div>
-            
             <div class="task-list" id="task-list-container"></div>
-            
             <div class="divider"></div>
             <div style="margin-bottom:20px;">
                 <button class="menu-btn" onclick="forceNightMode(); closeSettings();">
@@ -416,12 +391,13 @@
     </div>
 
     <div id="reader-modal">
-        <div class="reader-content" id="reader-content"></div>
-        <button class="reader-close-btn" onclick="closeReader()">× 閉じる</button>
+        <div class="reader-content" id="reader-content" dir="rtl"></div>
+        <div class="reader-close-area">
+            <button class="reader-close-btn" onclick="closeReader()">× 閉じる</button>
+        </div>
     </div>
 
     <div id="print-area"></div>
-    
     <audio id="bgm" loop></audio>
 
     <script>
@@ -476,54 +452,43 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
             loadData();
-            checkDateChange(); // 日付変更チェック
+            checkDateChange(); 
             checkTime();
             updateCount();
             switchLocation('home');
             updateSoundIcon();
         });
 
-        // 日付変更チェック
+        // 日付変更チェック（物語リセット）
         function checkDateChange() {
             const lastDate = localStorage.getItem('anthology_last_date');
             const todayStr = new Date().toDateString();
             
             if (lastDate && lastDate !== todayStr) {
-                // 日付が変わっていたらデータをリセット
                 collectedData = [];
                 saveData();
-                console.log("New day detected. Resetting story.");
+                console.log("Date changed. Story reset.");
             }
-            // 今日を記録
             localStorage.setItem('anthology_last_date', todayStr);
         }
 
         function toggleSound() {
             isSoundOn = !isSoundOn;
-            if(!isSoundOn) {
-                bgm.pause();
-            }
+            if(!isSoundOn) bgm.pause();
             updateSoundIcon();
         }
 
         function updateSoundIcon() {
             const btn = document.getElementById('sound-toggle');
-            if(isSoundOn) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            if(isSoundOn) btn.classList.add('active');
+            else btn.classList.remove('active');
         }
 
         function playBGM() {
-            if(isSoundOn) {
-                bgm.play().catch(() => {});
-            }
+            if(isSoundOn) bgm.play().catch(() => {});
         }
 
-        function stopBGM() {
-            bgm.pause();
-        }
+        function stopBGM() { bgm.pause(); }
 
         function switchLocation(mode) {
             currentMode = mode;
@@ -535,33 +500,25 @@
 
         function checkTime() {
             const hour = new Date().getHours();
-            if (hour >= 23) {
-                showNightMode();
-                return;
-            } else {
-                showDayMode();
-            }
+            if (hour >= 23) { showNightMode(); return; } 
+            else { showDayMode(); }
 
             let msg = "";
-            if (hour >= 6 && hour < 10) { 
-                currentZone = 'morning'; 
-                msg = (currentMode === 'home') ? "朝の光の中で、小さく始める。" : "新しい一歩を、外の世界へ。";
-            } else if (hour >= 10 && hour < 14) { 
-                currentZone = 'day'; 
-                msg = (currentMode === 'home') ? "日中の喧騒から、少し離れて。" : "風を感じて、心を軽く。";
-            } else if (hour >= 14 && hour < 18) { 
-                currentZone = 'evening'; 
-                msg = (currentMode === 'home') ? "夕暮れ時、心を整える。" : "帰り道、自分を労う。";
-            } else if (hour >= 18 && hour < 23) { 
-                currentZone = 'night'; 
-                msg = (currentMode === 'home') ? "夜の静寂に、身を委ねて。" : "夜風と共に、静かに帰る。";
-            } else { 
-                currentZone = 'morning'; 
-                msg = "静かな刻に、耳を澄ます。"; 
-            }
+            if (hour >= 6 && hour < 10) currentZone = 'morning';
+            else if (hour >= 10 && hour < 14) currentZone = 'day';
+            else if (hour >= 14 && hour < 18) currentZone = 'evening';
+            else if (hour >= 18 && hour < 23) currentZone = 'night';
+            else currentZone = 'morning'; 
+            
+            const msgs = {
+                morning: (currentMode === 'home') ? "朝の光の中で、小さく始める。" : "新しい一歩を、外の世界へ。",
+                day: (currentMode === 'home') ? "日中の喧騒から、少し離れて。" : "風を感じて、心を軽く。",
+                evening: (currentMode === 'home') ? "夕暮れ時、心を整える。" : "帰り道、自分を労う。",
+                night: (currentMode === 'home') ? "夜の静寂に、身を委ねて。" : "夜風と共に、静かに帰る。"
+            };
             
             const msgEl = document.getElementById('time-zone-msg');
-            if(msgEl) msgEl.innerText = msg;
+            if(msgEl) msgEl.innerText = msgs[currentZone];
         }
 
         function openSettings() {
@@ -575,14 +532,13 @@
             document.getElementById('settings-modal').classList.remove('active');
         }
 
+        // --- 読書画面を開く ---
         function openReader() {
-            if(collectedData.length === 0) {
-                alert("まだ白紙です。");
-                return;
-            }
+            if(collectedData.length === 0) { alert("まだ白紙です。"); return; }
             const container = document.getElementById('reader-content');
             let html = '';
             
+            // RTLなので、配列順（古い順）に追加すれば、右側（先頭）に古いものが来る
             collectedData.forEach(item => {
                 const h = new Date(item.date).getHours();
                 const m = new Date(item.date).getMinutes();
@@ -590,11 +546,9 @@
                 
                 html += `
                     <div class="reader-entry">
-                        <div class="reader-inner">
-                            <div class="reader-action">「${item.action}」ノ時</div>
-                            <div class="reader-text">${item.content.text}</div>
-                            <div class="reader-date">（${timeStr}）</div>
-                        </div>
+                        <div class="reader-action">「${item.action}」ノ時</div>
+                        <div class="reader-text">${item.content.text}</div>
+                        <div class="reader-date">（${timeStr}）</div>
                     </div>
                 `;
             });
@@ -622,13 +576,7 @@
             list.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'task-item';
-                div.innerHTML = `
-                    <div class="task-info">
-                        <span>${item.text}</span>
-                        <span style="font-size:10px; opacity:0.6; margin-left:5px;">(${item.time}分)</span>
-                    </div>
-                    <span class="delete-btn" onclick="deleteTask(${index})">×</span>
-                `;
+                div.innerHTML = `<div class="task-info"><span>${item.text}</span><span style="font-size:10px; opacity:0.6; margin-left:5px;">(${item.time}分)</span></div><span class="delete-btn" onclick="deleteTask(${index})">×</span>`;
                 container.appendChild(div);
             });
         }
@@ -638,16 +586,13 @@
             const timeInput = document.getElementById('new-task-time');
             const val = input.value.trim();
             const t = parseInt(timeInput.value);
-            
             if (val && t >= 0) {
                 if(!tasksData[currentMode]) tasksData[currentMode] = {};
                 if(!tasksData[currentMode][currentTab]) tasksData[currentMode][currentTab] = [];
-                
                 tasksData[currentMode][currentTab].push({ text: val, time: t });
                 saveTasks();
                 renderTaskList();
-                input.value = ""; 
-                timeInput.value = "3";
+                input.value = ""; timeInput.value = "3";
             }
         }
 
@@ -678,31 +623,21 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v51');
-            if (stored) { 
-                tasksData = JSON.parse(stored); 
-            } else { 
-                tasksData = JSON.parse(JSON.stringify(defaultTasksData)); 
-            }
+            const stored = localStorage.getItem('location_tasks_v52');
+            if (stored) { tasksData = JSON.parse(stored); } 
+            else { tasksData = JSON.parse(JSON.stringify(defaultTasksData)); }
         }
 
-        function saveTasks() {
-            localStorage.setItem('location_tasks_v51', JSON.stringify(tasksData));
-        }
+        function saveTasks() { localStorage.setItem('location_tasks_v52', JSON.stringify(tasksData)); }
 
         function startRoulette() {
             checkTime();
             const list = tasksData[currentMode][currentZone];
-            
-            if(!list || list.length === 0) {
-                alert("リストが空です。設定から追加してください。");
-                return;
-            }
+            if(!list || list.length === 0) { alert("リストが空です。設定から追加してください。"); return; }
             
             document.getElementById('btn-spin').classList.add('hidden');
             document.getElementById('btn-stop-roulette').classList.remove('hidden');
             document.getElementById('task-time-display').style.opacity = 0;
-            
             const textBox = document.getElementById('task-text');
             textBox.innerText = "";
             textBox.classList.remove('long-text');
@@ -717,16 +652,11 @@
             clearInterval(rouletteInterval);
             const list = tasksData[currentMode][currentZone];
             const r = Math.floor(Math.random() * list.length);
-            
             currentTaskObj = list[r];
             const textBox = document.getElementById('task-text');
             textBox.innerText = currentTaskObj.text;
-            
-            if(currentTaskObj.text.length > 8) {
-                textBox.classList.add('long-text');
-            } else {
-                textBox.classList.remove('long-text');
-            }
+            if(currentTaskObj.text.length > 8) textBox.classList.add('long-text');
+            else textBox.classList.remove('long-text');
             
             const timeDisplay = document.getElementById('task-time-display');
             timeDisplay.innerText = `（${currentTaskObj.time}分）`;
@@ -748,24 +678,15 @@
             
             const now = Date.now();
             endTime = now + (currentTaskObj.time * 60 * 1000);
-            
             totalSeconds = currentTaskObj.time * 60;
-            if(totalSeconds <= 0) {
-                 completeTask();
-                 return;
-            }
+            if(totalSeconds <= 0) { completeTask(); return; }
             
             updateTimerDisplay();
-            
             timerInterval = setInterval(() => {
                 const timeLeft = endTime - Date.now();
                 totalSeconds = Math.ceil(timeLeft / 1000);
-                
-                if(totalSeconds <= 0) {
-                    completeTask();
-                } else {
-                    updateTimerDisplay();
-                }
+                if(totalSeconds <= 0) { completeTask(); } 
+                else { updateTimerDisplay(); }
             }, 200);
         }
 
@@ -787,15 +708,9 @@
         function completeTask() {
             clearInterval(timerInterval);
             stopBGM();
-            
             const rand = Math.floor(Math.random() * fragments.length);
             const fragment = fragments[rand];
-            
-            collectedData.push({
-                date: new Date(),
-                action: currentTaskObj.text,
-                content: fragment
-            });
+            collectedData.push({ date: new Date(), action: currentTaskObj.text, content: fragment });
             saveData();
             updateCount();
             alert("物語の欠片を見つけました。");
@@ -808,11 +723,9 @@
             document.getElementById('btn-start-task').classList.add('hidden');
             document.getElementById('btn-cancel-task').classList.add('hidden');
             document.getElementById('btn-spin').classList.remove('hidden');
-            
             const textBox = document.getElementById('task-text');
             textBox.innerText = "ページをめくる";
             textBox.classList.remove('long-text');
-            
             document.getElementById('task-time-display').style.opacity = 0;
         }
 
@@ -832,12 +745,10 @@
             document.getElementById('count-display').innerText = toKanji(collectedData.length);
         }
 
-        function saveData() {
-            localStorage.setItem('anthology_data_v51', JSON.stringify(collectedData));
-        }
+        function saveData() { localStorage.setItem('anthology_data_v52', JSON.stringify(collectedData)); }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v51');
+            const data = localStorage.getItem('anthology_data_v52');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
@@ -862,21 +773,16 @@
         }
 
         function printBook() {
-            if(collectedData.length === 0) {
-                alert("白紙です。");
-                return;
-            }
+            if(collectedData.length === 0) { alert("白紙です。"); return; }
             const printArea = document.getElementById('print-area');
             const firstDate = collectedData[0].date;
             const dateStr = `${toKanji(firstDate.getFullYear())}年 ${toKanji(firstDate.getMonth()+1)}月 ${toKanji(firstDate.getDate())}日`;
             let html = `<div class="book-title-page"><div class="book-title">夜明けのアンソロジー</div><div class="book-date">${dateStr}</div></div>`;
-            
             collectedData.forEach(item => {
                 const h = new Date(item.date).getHours();
                 const m = new Date(item.date).getMinutes();
                 html += `<div class="chapter"><div class="chapter-header">試み：${item.action}</div><div class="chapter-text">${item.content.text}</div><div class="chapter-footer">― ${item.content.theme}</div></div>`;
             });
-            
             printArea.innerHTML = html;
             window.print();
         }
