@@ -157,7 +157,6 @@
         }
         #settings-modal.active, #reader-modal.active { display: flex; }
 
-        /* 設定画面 */
         #settings-modal { writing-mode: horizontal-tb; flex-direction: column; }
         .settings-content {
             width: 85%; max-width: 400px; background: var(--paper-color);
@@ -191,12 +190,10 @@
             white-space: nowrap; 
         }
 
-        /* --- 読書画面（iPhoneスクロール修正版） --- */
+        /* --- 読書画面（iPhone完全修正版） --- */
         #reader-modal { 
-            /* 縦書きモード */
             writing-mode: vertical-rl; 
             background: var(--paper-color); 
-            /* 背景グリッド */
             background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
             background-size: var(--grid-size) var(--grid-size);
             background-position: center center;
@@ -206,61 +203,67 @@
         }
         
         .reader-content {
-            /* ▼ 修正点: 高さを計算式で固定し、必ずスクロールさせる ▼ */
-            width: 100%; 
-            height: calc(100% - 100px); /* ボタンの分を引いた高さ */
-            margin-bottom: 100px; /* ボタンと被らないように */
+            /* 修正: 絶対配置で全画面を確保 */
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            width: 100vw; height: 100vh;
             
-            padding: 40px 20px;
+            /* 上下のパディングを大きく取る */
+            padding-top: 60px;
+            padding-bottom: 150px; /* ボタンと被らないように大きく確保 */
+            padding-right: 30px; /* 読み始めの位置 */
+            
             box-sizing: border-box;
             
-            /* 横スクロール（縦書きなので）を有効化 */
-            overflow-x: scroll; 
+            /* 横スクロール強制有効化 */
+            overflow-x: auto; 
             overflow-y: hidden;
-            
-            /* iOS慣性スクロール */
             -webkit-overflow-scrolling: touch; 
             
-            /* Flexを使わず、ブロック要素で並べる（これが一番安定します） */
+            /* 縦書きの配置 */
+            writing-mode: vertical-rl;
             display: block; 
             white-space: nowrap; 
         }
         
-        /* 1つの物語の塊 */
+        /* 物語の塊 */
         .reader-entry {
-            display: inline-block; /* 横に並べる */
+            display: inline-block; 
             vertical-align: top;
-            height: 100%; /* 親の高さに合わせる */
+            
+            /* 高さを画面の70%に制限（これでボタンに被らない） */
+            height: 70vh; 
             
             margin-left: calc(var(--grid-size) * 1.5);
             padding-left: calc(var(--grid-size) * 1.5);
             border-left: 1px double var(--accent-color);
             
-            white-space: normal; /* 中身の改行は許可 */
-            /* 中身の配置 */
+            white-space: normal; /* 中身の改行許可 */
             position: relative;
         }
         .reader-entry:first-child { border-left: none; }
         
-        /* 内部レイアウト調整（position absoluteを使わず配置） */
-        .entry-inner {
+        /* 内部レイアウト */
+        .reader-inner {
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 100%;
         }
 
         .reader-action { 
             font-size: 14px; opacity: 0.6; 
             margin-bottom: var(--grid-size); 
             font-family: 'Zen Maru Gothic', sans-serif; 
+            flex-shrink: 0;
         }
         
         .reader-text { 
             font-size: var(--font-size); 
             line-height: var(--grid-size); 
             letter-spacing: 0.3em; 
-            flex-grow: 1; /* 余白を埋める */
+            overflow-y: visible; 
+            flex-grow: 1;
         }
         
         .reader-date { 
@@ -269,23 +272,24 @@
             text-align: right; 
             opacity: 0.4; 
             font-family: 'Zen Maru Gothic', sans-serif; 
+            flex-shrink: 0;
         }
         
         .reader-close-btn {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            position: fixed; 
+            bottom: 40px; /* 下から少し浮かせる */
+            left: 50%; transform: translateX(-50%);
             writing-mode: horizontal-tb; 
             background: var(--paper-color); 
             padding: 12px 30px;
             border: 1px solid var(--grid-color);
             border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             cursor: pointer; color: var(--text-color);
             font-family: 'Hina Mincho', serif;
-            font-size: 15px; letter-spacing: 0.1em;
-            transition: 0.3s;
+            font-size: 16px; letter-spacing: 0.1em;
             z-index: 300;
         }
-        .reader-close-btn:hover { transform: translateX(-50%) scale(1.05); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
 
         .modal-title { font-family:'Hina Mincho'; font-size:18px; margin-bottom:20px; text-align:center; }
         .tabs { display: flex; border-bottom: 1px solid var(--grid-color); margin-bottom: 20px; }
@@ -335,7 +339,9 @@
             <div id="phase-roulette" style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:center; width:100%;">
                 <div class="display-area">
                     <div id="time-zone-msg"></div>
+                    
                     <div id="task-text" class="task-text">ページをめくる</div>
+                    
                     <div id="task-time-display" class="time-badge"></div>
                 </div>
                 <div class="button-area">
@@ -470,11 +476,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
             loadData();
+            checkDateChange(); // 日付変更チェック
             checkTime();
             updateCount();
             switchLocation('home');
             updateSoundIcon();
         });
+
+        // 日付変更チェック
+        function checkDateChange() {
+            const lastDate = localStorage.getItem('anthology_last_date');
+            const todayStr = new Date().toDateString();
+            
+            if (lastDate && lastDate !== todayStr) {
+                // 日付が変わっていたらデータをリセット
+                collectedData = [];
+                saveData();
+                console.log("New day detected. Resetting story.");
+            }
+            // 今日を記録
+            localStorage.setItem('anthology_last_date', todayStr);
+        }
 
         function toggleSound() {
             isSoundOn = !isSoundOn;
@@ -568,7 +590,7 @@
                 
                 html += `
                     <div class="reader-entry">
-                        <div class="entry-inner">
+                        <div class="reader-inner">
                             <div class="reader-action">「${item.action}」ノ時</div>
                             <div class="reader-text">${item.content.text}</div>
                             <div class="reader-date">（${timeStr}）</div>
@@ -656,7 +678,7 @@
         }
 
         function loadTasks() {
-            const stored = localStorage.getItem('location_tasks_v49');
+            const stored = localStorage.getItem('location_tasks_v51');
             if (stored) { 
                 tasksData = JSON.parse(stored); 
             } else { 
@@ -665,7 +687,7 @@
         }
 
         function saveTasks() {
-            localStorage.setItem('location_tasks_v49', JSON.stringify(tasksData));
+            localStorage.setItem('location_tasks_v51', JSON.stringify(tasksData));
         }
 
         function startRoulette() {
@@ -811,11 +833,11 @@
         }
 
         function saveData() {
-            localStorage.setItem('anthology_data_v49', JSON.stringify(collectedData));
+            localStorage.setItem('anthology_data_v51', JSON.stringify(collectedData));
         }
 
         function loadData() {
-            const data = localStorage.getItem('anthology_data_v49');
+            const data = localStorage.getItem('anthology_data_v51');
             if(data) {
                 collectedData = JSON.parse(data);
                 collectedData.forEach(d => d.date = new Date(d.date));
